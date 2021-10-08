@@ -1,9 +1,17 @@
 version: '3.8'
 services:
-   web:
-       build: .
-       command: python manage.py runserver 0.0.0.0:8000
+    backend:
+       image: "django-backend"
+       build: ./backend
+       command: python ./backend/manage.py runserver 0.0.0.0:8000
        ports:
-           - "0.0.0.0:8000:8000"
+            - "0.0.0.0:8000:8000"
        volumes:
-       - ./:/app
+            - ./:/app
+    frontend:
+        image: "react-frontend"
+        build: ./client
+        ports: 
+            - "3000:3000"
+        volumes:
+            - ./client:/app

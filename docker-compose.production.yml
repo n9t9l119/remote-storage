@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+   backend:
+      image: "django-backend-prod"
+      build: ./backend
+      command: python ./backend/manage.py runserver 0.0.0.0:8000
+      ports:
+         - "0.0.0.0:8000:8000"
+      volumes:
+         - ./:/app
+   frontend:
+      image: "react-frontend-prod"
+      build:
+         context: ./client
+         dockerfile: Dockerfile.production
+      volumes:
+         - ./client:/app
