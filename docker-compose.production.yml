@@ -14,4 +14,4 @@ services:
          context: ./client
          dockerfile: Dockerfile.production
       volumes:
-         - ./client:/app
+         - ./client:/app/client
