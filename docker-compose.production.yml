@@ -5,7 +5,7 @@ services:
       build: ./backend
       command: python ./backend/manage.py runserver 0.0.0.0:8000
       ports:
-         - "0.0.0.0:8000:8000"
+         - "8000:8000"
       volumes:
          - ./:/app
    frontend:
