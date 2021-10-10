@@ -1,5 +1,6 @@
 from django.shortcuts import render
+from rest_framework import viewsets
 
-def idnex(request):
+
+def index(request):
     return render(request, 'index.html')
-

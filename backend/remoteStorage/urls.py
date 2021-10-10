@@ -1,11 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from django.conf import settings
-from django.conf.urls.static import static
+from rest_framework import routers
+
+import fs_play.views
 from . import views
 
 urlpatterns = [
+    path('files/<pk>', fs_play.views.FileViewSet.as_view({'get': 'retrieve', 'post' : 'create'})),
     path('admin/', admin.site.urls),
-    path('', views.idnex)
+    path('', views.index),
 ]
