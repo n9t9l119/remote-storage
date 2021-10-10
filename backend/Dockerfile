@@ -4,7 +4,7 @@ RUN apt update
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
-COPY ./ /app
+COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt && \
     python manage.py makemigrations && \
