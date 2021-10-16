@@ -1,3 +1,5 @@
+import datetime
+import time
 import uuid
 
 from django.shortcuts import render
@@ -9,60 +11,129 @@ from rest_framework.views import APIView
 from filesystem.models import File, Folder
 from filesystem.serializers import FileSerializer, FolderGetSerializer, FolderPostSerializer
 
-
-class FolderViewSet(APIView):
-    def get(self, request):
-        response = {
-            "response": {
-                "owner": "Rakuk",
-                "parent_id": None,
-                "objects": [
-                    {
-                        "type": "folder",
-                        "id": uuid.uuid4(),
-                        "name": "Моя папка 1",
-                        "creation_date": 1634393589,
-                        "owner": "Rakuk",
-                    },
-                    {
-                        "type": "folder",
-                        "id": uuid.uuid4(),
-                        "name": "Моя папка 2",
-                        "creation_date": 1634393589,
-                        "owner": "Savam",
-                    },
-                    {
-                        "type": "folder",
-                        "id": uuid.uuid4(),
-                        "name": "Моя папка 3",
-                        "creation_date": 1634393589,
-                        "owner": "nlonkina._.",
-                    },
-                ]
-            }
+tree = {
+    "children": [
+        {
+            "name": "Папка 1",
+            "id": uuid.uuid4(),
+            "children": [
+                {
+                    "name": "Папка 2",
+                    "id": uuid.uuid4(),
+                    "children": []
+                },
+                {
+                    "name": "Папка 3",
+                    "id": uuid.uuid4(),
+                    "children": [
+                        {
+                            "name": "Папка 4",
+                            "id": uuid.uuid4(),
+                            "children": []
+                        }
+                    ]
+                },
+            ]
         }
-        return Response(response)
+    ]
+}
 
 
-# class FolderViewSet(viewsets.ModelViewSet):
-#     queryset = Folder.objects.all()
-#     serializer_class = FolderGetSerializer
-#
-#     def list(self, request, *args, **kwargs):
-#         queryset = Folder.objects.all()
-#         page = self.paginate_queryset(queryset)
-#         if page is not None:
-#             serializer = FolderGetSerializer(page, many=True)
-#             return self.get_paginated_response(serializer.data)
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#     def create(self, request, *args, **kwargs):
-#         serializer = FolderPostSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_create(serializer)
-#         headers = self.get_success_headers(serializer.data)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+def findFolder(parent_tree, parent_id):
+    if parent_id is None:
+        return parent_tree
+
+    for child in parent_tree['children']:
+        if child['id'] == parent_id:
+            return child
+        res = findFolder(child, parent_id)
+        if res is not None:
+            return res
+    return None
+
+def convert(res, id):
+    objects = []
+    for object in res['children']:
+        objects.append({
+            "type": "folder",
+            "id": object["id"],
+            "name": object["name"],
+            "creation_date": int(time.mktime(datetime.datetime.utcnow().timetuple())),
+            "owner": "Rakuk"
+        })
+
+    return {"parent_id": id, "owner" : "Rakuk", "objects" : objects }
+
+class FilesystemGetViewSet(APIView):
+    def get(self, request):
+        if 'id' in request.GET:
+            id = uuid.UUID(request.GET['id'])
+        else:
+            id = None
+
+        res = findFolder(tree, id)
+
+        if res is None:
+            return Response({"error": { "text" : "folder with id not found"}}, status=404)
+
+        return Response({"response": convert(res, id)})
+
+
+class FilesystemRenameFolderViewSet(APIView):
+    def get(self, request):
+        if not 'id' in request.GET:
+            return Response({"error": { "text" : "'id' not in request"}}, status=404)
+
+        if not 'new_name' in request.GET:
+            return Response({"error": { "text" : "'new_name' not in request"}}, status=404)
+
+        id = uuid.UUID(request.GET['id'])
+        new_name = request.GET['new_name']
+
+        if not 'from_result' in request.GET:
+            from_result = id
+        elif not (request.GET['from_result'] == '' or request.GET['from_result'] == 'null'):
+            from_result = uuid.UUID(request.GET['from_result'])
+        else:
+            from_result = None
+
+
+        res = findFolder(tree, id)
+        if res is None:
+            return Response({"error": { "text" : "folder with id not found"}}, status=404)
+        res['name'] = new_name
+
+        res = findFolder(tree, from_result)
+        if res is None:
+            return Response({"error": { "text" : "folder with from_result not found"}}, status=404)
+
+        return Response({"response": convert(res, from_result)})
+
+class FilesystemCreateFolderViewSet(APIView):
+    def get(self, request):
+        if not 'parent_id' in request.GET:
+            return Response({"error": { "text" : "'parent_id' not in request"}}, status=404)
+
+        if not 'name' in request.GET:
+            return Response({"error": { "text" : "'name' not in request"}}, status=404)
+
+        name = request.GET['name']
+
+        if not (request.GET['parent_id'] == '' or request.GET['parent_id'] == 'null'):
+            id = uuid.UUID(request.GET['parent_id'])
+        else:
+            id = None
+
+        res = findFolder(tree, id)
+        if res is None:
+            return Response({"error": { "text" : "folder with id not found"}}, status=404)
+        res['children'].append({
+            "name": name,
+            "id": uuid.uuid4(),
+            "children": []
+        })
+
+        return Response({"response": convert(res, id)})
 
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
