@@ -56,7 +56,7 @@ ROOT_URLCONF = 'remoteStorage.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / '../client/build/']
+        'DIRS': [BASE_DIR / './client/build/']
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -118,7 +118,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/' 
 
-STATICFILES_DIRS = [BASE_DIR / '../client/build/']
+STATIC_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [BASE_DIR / './client/build/static']
+
+MEDIA_URL = '/media/' 
+
+MEDIA_ROOT = BASE_DIR / 'media'
 
 MEDIA_URL = '/storage/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'storage_root')
