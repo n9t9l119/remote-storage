@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from filesystem.models import File, Folder
 
-
 class FolderGetSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -24,6 +23,11 @@ class FolderPostSerializer(serializers.Serializer):
         folder.owner = User.objects.get(id = validated_data['owner']['id'])
         folder.save()
         return folder
+
+class FolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = ['name', 'parent', 'creation_date', 'owner']
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:

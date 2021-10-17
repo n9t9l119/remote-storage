@@ -6,138 +6,115 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.parsers import FileUploadParser
 from rest_framework.views import APIView
+from django.contrib.auth.models import User
 
 from filesystem.models import File, Folder
-from filesystem.serializers import FileSerializer, FolderGetSerializer, FolderPostSerializer
+from filesystem.serializers import FileSerializer, FolderGetSerializer, FolderPostSerializer, FolderSerializer, GetSerializer
 
-tree = {
-    "children": [
-        {
-            "name": "Папка 1",
-            "id": uuid.uuid4(),
-            "children": [
-                {
-                    "name": "Папка 2",
-                    "id": uuid.uuid4(),
-                    "children": []
-                },
-                {
-                    "name": "Папка 3",
-                    "id": uuid.uuid4(),
-                    "children": [
-                        {
-                            "name": "Папка 4",
-                            "id": uuid.uuid4(),
-                            "children": []
-                        }
-                    ]
-                },
-            ]
-        }
-    ]
-}
+class FilesystemHelpers:
+    def response(self, parent, children):
+        objects = []
+        for child in children:
+            objects.append({
+                "type": "folder",
+                "id": child.id,
+                "name": child.name,
+                "creation_date": child.creation_date,
+                "owner": child.owner.username
+            })
+
+        return Response({"response": {"parent_id": parent.id, "owner": parent.owner.username, "objects": objects} })
+
+    def get_str_param(self, request, name, raise_exc = False):
+        param = request.GET.get(name)
+        if param is None and raise_exc:
+            raise Response({"error": {"text": f"param {name} is not in params"}}, status=404)
+        return param
+
+    def get_uuid_param(self, request, name, raise_exc = False):
+        param = self.get_str_param(request, name, raise_exc)
+        if param is not None:
+            return uuid.UUID(param)
+        return param
+
+    def get_folder_by_id(self, id, include_root = True):
+        if id is not None:
+            folder = Folder.objects.filter(id=id)
+            if not folder.exists():
+                raise Response({"error": {"text": f"folder with id {id} not found"}}, status=404)
+            return parent
+        if id is None and include_root: #TODO: Костыль, Наташа не бей)))
+            parent = Folder()
+            parent.owner = User.objects.first()
+            parent.name = 'root'
+            parent.id = None
+            return parent
+        raise Response({"error": {"text": "root folder is not supported in this method"}}, status=404)
 
 
-def findFolder(parent_tree, parent_id):
-    if parent_id is None:
-        return parent_tree
+class GetViewSet(APIView, FilesystemHelpers):
+    serializer_class = GetSerializer
 
-    for child in parent_tree['children']:
-        if child['id'] == parent_id:
-            return child
-        res = findFolder(child, parent_id)
-        if res is not None:
-            return res
-    return None
+    def post(self, request):
+        self.serializer_class().validate(request.data)
 
-def convert(res, id):
-    objects = []
-    for object in res['children']:
-        objects.append({
-            "type": "folder",
-            "id": object["id"],
-            "name": object["name"],
-            "creation_date": int(time.mktime(datetime.datetime.utcnow().timetuple())),
-            "owner": "Rakuk"
-        })
+        id = self.get_uuid_param(request, 'id')
+        parent = self.get_folder_by_id(id)
+        children = Folder.objects.filter(parent_id = id)
 
-    return {"parent_id": id, "owner" : "Rakuk", "objects" : objects }
+        return self.response(parent, children)
 
-class FilesystemGetViewSet(APIView):
+class RenameFolderViewSet(APIView, FilesystemHelpers):
     def get(self, request):
-        if 'id' in request.GET:
-            id = uuid.UUID(request.GET['id'])
-        else:
-            id = None
+        id = self.get_uuid_param(request, 'id', True)
+        new_name = self.get_str_param(request, 'new_name', True)
 
-        res = findFolder(tree, id)
+        folder = self.get_folder_by_id(id, include_root=False)
+        folder.name = new_name
+        folder.save()
 
-        if res is None:
-            return Response({"error": { "text" : "folder with id not found"}}, status=404)
+        children = Folder.objects.filter(parent_id = folder.parent_id)
+        parent = self.get_folder_by_id(folder.parent_id)
 
-        return Response({"response": convert(res, id)})
+        return self.response(parent, children)
 
-
-class FilesystemRenameFolderViewSet(APIView):
+class CreateFolderViewSet(APIView, FilesystemHelpers):
     def get(self, request):
-        if not 'id' in request.GET:
-            return Response({"error": { "text" : "'id' not in request"}}, status=404)
+        parent_id = self.get_uuid_param(request, 'parent_id')
+        name = self.get_str_param(request, 'name', True)
 
-        if not 'new_name' in request.GET:
-            return Response({"error": { "text" : "'new_name' not in request"}}, status=404)
+        parent = self.get_folder_by_id(parent_id)
 
-        id = uuid.UUID(request.GET['id'])
-        new_name = request.GET['new_name']
+        folder = Folder()
+        folder.name = name
+        folder.owner = User.objects.first() #TODO: Определять юзера
+        folder.parent = parent if parent.id is not None else None #TODO: Костыль)))
+        folder.save()
 
-        if not 'from_result' in request.GET:
-            from_result = id
-        elif not (request.GET['from_result'] == '' or request.GET['from_result'] == 'null'):
-            from_result = uuid.UUID(request.GET['from_result'])
-        else:
-            from_result = None
+        children = Folder.objects.filter(parent_id = parent_id)
 
+        return self.response(parent, children)
 
-        res = findFolder(tree, id)
-        if res is None:
-            return Response({"error": { "text" : "folder with id not found"}}, status=404)
-        res['name'] = new_name
+class FileUploadViewSet(APIView):
+    parser_classes = (FileUploadParser,)
 
-        res = findFolder(tree, from_result)
-        if res is None:
-            return Response({"error": { "text" : "folder with from_result not found"}}, status=404)
+    def post(self, request, format='jpg'):
+        up_file = request.FILES['file']
 
-        return Response({"response": convert(res, from_result)})
+        file = File()
+        file.data = up_file
+        file.name = up_file.name
+        file.parent = Folder.objects.first()
+        file.owner = User.objects.first()
+        file.save()
 
-class FilesystemCreateFolderViewSet(APIView):
-    def get(self, request):
-        if not 'parent_id' in request.GET:
-            return Response({"error": { "text" : "'parent_id' not in request"}}, status=404)
+        return Response(up_file.name, status.HTTP_201_CREATED)
 
-        if not 'name' in request.GET:
-            return Response({"error": { "text" : "'name' not in request"}}, status=404)
-
-        name = request.GET['name']
-
-        if not (request.GET['parent_id'] == '' or request.GET['parent_id'] == 'null'):
-            id = uuid.UUID(request.GET['parent_id'])
-        else:
-            id = None
-
-        res = findFolder(tree, id)
-        if res is None:
-            return Response({"error": { "text" : "folder with id not found"}}, status=404)
-        res['children'].append({
-            "name": name,
-            "id": uuid.uuid4(),
-            "children": []
-        })
-
-        return Response({"response": convert(res, id)})
-
-class FileViewSet(viewsets.ModelViewSet):
+class FolderViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
-    serializer_class = FileSerializer
+    serializer_class = FolderSerializer
 
     # def list(self, request, *args, **kwargs):
     #     # Note the use of `get_queryset()` instead of `self.queryset`

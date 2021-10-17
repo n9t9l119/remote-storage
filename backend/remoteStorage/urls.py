@@ -11,10 +11,11 @@ import filesystem.views
 from . import views, settings
 
 urlpatterns = [
-    path('files/', filesystem.views.FileViewSet.as_view({'get': 'list', 'post' : 'create'})),
-    path('filesystem/get', filesystem.views.FilesystemGetViewSet.as_view()),
-    path('filesystem/rename', filesystem.views.FilesystemRenameFolderViewSet.as_view()),
-    path('filesystem/createFolder', filesystem.views.FilesystemCreateFolderViewSet.as_view()),
+    path('folders/', filesystem.views.FolderViewSet.as_view({'get': 'list', 'post' : 'create'})),
+    path('api/filesystem/get', filesystem.views.GetViewSet.as_view()),
+    path('api/filesystem/rename', filesystem.views.RenameFolderViewSet.as_view()),
+    path('api/filesystem/createFolder', filesystem.views.CreateFolderViewSet.as_view()),
+    path('api/filesystem/uploadFile', filesystem.views.FileUploadViewSet.as_view()),
     path('admin/', admin.site.urls),
     url(r'^$', views.index),
     url(r'^(?:.*)\/?$', views.index)
