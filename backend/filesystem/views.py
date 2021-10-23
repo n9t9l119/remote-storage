@@ -8,99 +8,73 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth.models import User
 
 from filesystem.models import File, Folder
-from filesystem.serializers import FileSerializer, FolderGetSerializer, FolderPostSerializer, FolderSerializer, GetSerializer
+from filesystem.serializers import FolderSerializer
+
+from filesystem.services import FilesystemService
+
+import datetime
 
 class FilesystemHelpers:
-    def response(self, parent, children):
-        objects = []
-        for child in children:
-            objects.append({
-                "type": "folder",
-                "id": child.id,
-                "name": child.name,
-                "creation_date": child.creation_date,
-                "owner": child.owner.username
-            })
-
-        return Response({"response": {"parent_id": parent.id, "owner": parent.owner.username, "objects": objects} })
-
-    def get_str_param(self, request, name, raise_exc = False):
-        param = request.GET.get(name)
-        if param is None and raise_exc:
-            raise Response({"error": {"text": f"param {name} is not in params"}}, status=404)
+    def get_str_param(self, request, name):
+        param = request.query_params.get(name)
+        if param is None:
+            raise ValidationError({"error": {"text": f"param {name} is not in params"}})
         return param
 
-    def get_uuid_param(self, request, name, raise_exc = False):
-        param = self.get_str_param(request, name, raise_exc)
-        if param is not None:
+    def get_uuid_param(self, request, name):
+        param = request.query_params.get(name)
+        if param is None:
+            return uuid.UUID('af4b90139d0e4cad984ceb16a8734478')  # TODO: Временно
+            # raise ValidationError({"error": {"text": f"param {name} is not in params"}})
+        try:
             return uuid.UUID(param)
-        return param
-
-    def get_folder_by_id(self, id, include_root = True):
-        if id is not None:
-            folder = Folder.objects.filter(id=id)
-            if not folder.exists():
-                raise Response({"error": {"text": f"folder with id {id} not found"}}, status=404)
-            return parent
-        if id is None and include_root: #TODO: Костыль, Наташа не бей)))
-            parent = Folder()
-            parent.owner = User.objects.first()
-            parent.name = 'root'
-            parent.id = None
-            return parent
-        raise Response({"error": {"text": "root folder is not supported in this method"}}, status=404)
-
+        except:
+            raise ValidationError({"error": {"text": f"param {name} is not uuid"}})
 
 class GetViewSet(APIView, FilesystemHelpers):
-    serializer_class = GetSerializer
-
     def post(self, request):
-        self.serializer_class().validate(request.data)
-
         id = self.get_uuid_param(request, 'id')
-        parent = self.get_folder_by_id(id)
-        children = Folder.objects.filter(parent_id = id)
+        user = User.objects.first()
+        return FilesystemService().get(id, user)
 
-        return self.response(parent, children)
 
-class RenameFolderViewSet(APIView, FilesystemHelpers):
-    def get(self, request):
-        id = self.get_uuid_param(request, 'id', True)
-        new_name = self.get_str_param(request, 'new_name', True)
+class RenameViewSet(APIView, FilesystemHelpers):
+    def post(self, request):
+        id = self.get_uuid_param(request, 'id')
+        new_name = self.get_str_param(request, 'new_name')
+        user = User.objects.first()
+        return FilesystemService().rename(id, new_name, user)
 
-        folder = self.get_folder_by_id(id, include_root=False)
-        folder.name = new_name
-        folder.save()
 
-        children = Folder.objects.filter(parent_id = folder.parent_id)
-        parent = self.get_folder_by_id(folder.parent_id)
+class MoveViewSet(APIView, FilesystemHelpers):
+    def post(self, request):
+        id = self.get_uuid_param(request, 'id')
+        new_parent_id = self.get_uuid_param(request, 'new_parent_id')
+        user = User.objects.first()
+        return FilesystemService().move(id, new_parent_id, user)
 
-        return self.response(parent, children)
+
+class DeleteViewSet(APIView, FilesystemHelpers):
+    def post(self, request):
+        id = self.get_uuid_param(request, 'id')
+        user = User.objects.first()
+        return FilesystemService().delete(id, user)
 
 class CreateFolderViewSet(APIView, FilesystemHelpers):
-    def get(self, request):
+    def post(self, request):
         parent_id = self.get_uuid_param(request, 'parent_id')
-        name = self.get_str_param(request, 'name', True)
+        name = self.get_str_param(request, 'name')
+        user = User.objects.first()
+        return FilesystemService().createFolder(parent_id, name, user)
 
-        parent = self.get_folder_by_id(parent_id)
-
-        folder = Folder()
-        folder.name = name
-        folder.owner = User.objects.first() #TODO: Определять юзера
-        folder.parent = parent if parent.id is not None else None #TODO: Костыль)))
-        folder.save()
-
-        children = Folder.objects.filter(parent_id = parent_id)
-
-        return self.response(parent, children)
-
-class FileUploadViewSet(APIView):
+class UploadFileViewSet(APIView):
     parser_classes = (FileUploadParser,)
 
-    def post(self, request, format='jpg'):
+    def post(self, request):
         up_file = request.FILES['file']
 
         file = File()
