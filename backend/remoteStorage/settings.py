@@ -26,6 +26,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'base_settings.User'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,8 +40,17 @@ INSTALLED_APPS = [
 
     'rest_framework',
 
-    'filesystem'
+    'filesystem',
+    'base_settings'
     ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'remoteStorage.rest_api.jwt.JwtAuthentication.JwtAuthentication',
+    ),
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
