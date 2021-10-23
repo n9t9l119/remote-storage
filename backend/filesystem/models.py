@@ -1,13 +1,12 @@
-from django.contrib.auth.models import User
+from typing import Union
+
+from base_settings.models import User
 from django.db import models
 import uuid
 import os
 
 from enum import Enum
 
-class Type(Enum):
-    FILE = 1,
-    FOLDER = 2
 
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -18,7 +17,7 @@ class Folder(models.Model):
 
     @property
     def type(self):
-        return Type.FOLDER
+        return ObjectType.FOLDER
 
     class Meta:
         constraints = [
@@ -41,9 +40,17 @@ class File(models.Model):
 
     @property
     def type(self):
-        return Type.FOLDER
+        return ObjectType.FILE
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'parent', 'owner'], name='unique_file')
         ]
+
+class ObjectType(Enum):
+    FILE = (1, Folder)
+    FOLDER = (2, File)
+
+    @property
+    def model(self):
+        return self.value[1]

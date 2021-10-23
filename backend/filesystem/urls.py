@@ -1,7 +1,7 @@
 from django.urls import path
 
 from filesystem.views import FolderViewSet, GetViewSet, RenameViewSet, MoveViewSet, DeleteViewSet, CreateFolderViewSet, \
-    UploadFileViewSet
+    UploadFileViewSet, DownloadFileViewSet
 
 urlpatterns = [
     path('folders', FolderViewSet.as_view({'get': 'list', 'post': 'create'})),
@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete', DeleteViewSet.as_view()),
     path('create_folder', CreateFolderViewSet.as_view()),
     path('upload_file', UploadFileViewSet.as_view()),
+    path('download_file', DownloadFileViewSet.as_view())
 ]

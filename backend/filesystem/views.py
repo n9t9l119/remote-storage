@@ -1,90 +1,74 @@
 import datetime
 import time
 import uuid
-
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.parsers import FileUploadParser
+from filesystem.parsers import CustomFileUploadParser
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
-from django.contrib.auth.models import User
-
+from base_settings.models import User
 from filesystem.models import File, Folder
 from filesystem.serializers import FolderSerializer
-
 from filesystem.services import FilesystemService
-
+from filesystem.helpers import get_uuid_param, get_str_param
 import datetime
 
-class FilesystemHelpers:
-    def get_str_param(self, request, name):
-        param = request.query_params.get(name)
-        if param is None:
-            raise ValidationError({"error": {"text": f"param {name} is not in params"}})
-        return param
-
-    def get_uuid_param(self, request, name):
-        param = request.query_params.get(name)
-        if param is None:
-            return uuid.UUID('af4b90139d0e4cad984ceb16a8734478')  # TODO: Временно
-            # raise ValidationError({"error": {"text": f"param {name} is not in params"}})
-        try:
-            return uuid.UUID(param)
-        except:
-            raise ValidationError({"error": {"text": f"param {name} is not uuid"}})
-
-class GetViewSet(APIView, FilesystemHelpers):
+class GetViewSet(APIView):
     def post(self, request):
-        id = self.get_uuid_param(request, 'id')
+        id = get_uuid_param(request, 'id', False)
         user = User.objects.first()
+        if id is None:
+            id = user.root_folder_id
         return FilesystemService().get(id, user)
 
 
-class RenameViewSet(APIView, FilesystemHelpers):
+class RenameViewSet(APIView):
     def post(self, request):
-        id = self.get_uuid_param(request, 'id')
-        new_name = self.get_str_param(request, 'new_name')
+        id = get_uuid_param(request, 'id')
+        new_name = get_str_param(request, 'new_name')
         user = User.objects.first()
         return FilesystemService().rename(id, new_name, user)
 
 
-class MoveViewSet(APIView, FilesystemHelpers):
+class MoveViewSet(APIView):
     def post(self, request):
-        id = self.get_uuid_param(request, 'id')
-        new_parent_id = self.get_uuid_param(request, 'new_parent_id')
+        id = get_uuid_param(request, 'id')
+        new_parent_id = get_uuid_param(request, 'new_parent_id')
         user = User.objects.first()
         return FilesystemService().move(id, new_parent_id, user)
 
 
-class DeleteViewSet(APIView, FilesystemHelpers):
+class DeleteViewSet(APIView):
     def post(self, request):
-        id = self.get_uuid_param(request, 'id')
+        id = get_uuid_param(request, 'id')
         user = User.objects.first()
         return FilesystemService().delete(id, user)
 
-class CreateFolderViewSet(APIView, FilesystemHelpers):
+
+class CreateFolderViewSet(APIView):
     def post(self, request):
-        parent_id = self.get_uuid_param(request, 'parent_id')
+        parent_id = get_uuid_param(request, 'parent_id')
         name = self.get_str_param(request, 'name')
         user = User.objects.first()
         return FilesystemService().createFolder(parent_id, name, user)
 
+
 class UploadFileViewSet(APIView):
-    parser_classes = (FileUploadParser,)
+    parser_classes = (CustomFileUploadParser,)
 
     def post(self, request):
-        up_file = request.FILES['file']
+        parent_id = get_uuid_param(request, 'parent_id')
+        file_data = request.FILES['file']
+        user = User.objects.first()
+        return FilesystemService().upload_file(file_data, parent_id, user)
 
-        file = File()
-        file.data = up_file
-        file.name = up_file.name
-        file.parent = Folder.objects.first()
-        file.owner = User.objects.first()
-        file.save()
-
-        return Response(up_file.name, status.HTTP_201_CREATED)
+class DownloadFileViewSet(APIView):
+    def get(self, request):
+        id = get_uuid_param(request, 'id')
+        user = User.objects.first()
+        return FilesystemService().download_file(id, user)  # get(id, user)
 
 class FolderViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()

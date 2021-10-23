@@ -114,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
 TIME_ZONE = 'UTC'
 
@@ -133,12 +133,9 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / './client/build/static']
 
-MEDIA_URL = '/media/' 
-
-MEDIA_ROOT = BASE_DIR / 'media'
-
 MEDIA_URL = '/storage/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'storage_root')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
