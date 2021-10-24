@@ -1,13 +1,16 @@
+import os
+
 import jwt
 
 from django.utils import timezone
 from dotenv import dotenv_values
 
 from base_settings.models import User
+from remoteStorage.settings import BASE_DIR
 
 
 class GenerateJwt:
-    config = dotenv_values(".env")
+    config = dotenv_values(os.path.join(BASE_DIR.parent, '.env'))
 
     def get_payload_data(self, token, access_token=False):
         secret_key = self.config['REFRESH_TOKEN_SECRET_KEY'] \

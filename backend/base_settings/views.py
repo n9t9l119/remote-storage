@@ -13,6 +13,10 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
+    def post(self, request, *args, **kwargs):
+        self.create(request, *args, **kwargs)
+        return Response(GenerateJwt().obtain_jwt(request.data['username']))
+
 
 class LogIn(APIView):
     serializer_class = LoginSerializer
