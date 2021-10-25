@@ -4,9 +4,9 @@ from django.urls import path, include
 
 from . import views
 
-urlpatterns = {
+urlpatterns = [
     path('api/v1/', include('base_settings.urls')),
     path('admin/', admin.site.urls),
     url(r'^$', views.index),
     url(r'^(?:.*)\/?$', views.index)
-}
+]

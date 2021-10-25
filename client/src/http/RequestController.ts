@@ -13,7 +13,7 @@ export default class RequestController<T> {
         this.command = request
         this.callback = callback
         this.axios = axios.create({
-            withCredentials: true,
+            // withCredentials: true,
             baseURL: DESTINATION_HOST + '/api/v1',
         })
     }

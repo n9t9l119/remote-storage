@@ -24,7 +24,10 @@ SECRET_KEY = 'django-insecure-(6@+e93r+9&8ffshdl%(xh$81emu)ish&@f6z@2q0ag3rb8cl-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost:3000', 'localhost:8000', 'localhost']
+
+CORS_ORIGIN_ALLOW_ALL = True
+
 
 AUTH_USER_MODEL = 'base_settings.User'
 
@@ -37,12 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
 
     'rest_framework',
 
     'base_settings'
-    ]
-
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -50,8 +53,8 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'remoteStorage.urls'
@@ -126,16 +130,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/' 
+STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / './client/build/static']
 
-MEDIA_URL = '/media/' 
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
