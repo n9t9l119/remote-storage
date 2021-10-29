@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {LoginBlock} from "./LoginBlock";
 import {RegistrationBlock} from "./RegistrationBlock";
 
-import './LoginRegistration.scss'
+import './LoginRegistration.css'
 import RequestController from "../../http/RequestController";
 import RegisterRequest, {RegisterResponse} from "../../requests/RegisterRequest";
 

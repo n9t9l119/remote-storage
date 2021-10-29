@@ -18,7 +18,7 @@ interface RegisterParams extends Params{
 
 export default class RegisterRequest implements Request {
     method: MethodType = "post"
-    route = "/register"
+    route = "/register/"
     parameters: RegisterParams
 
     constructor(parameters: RegisterParams) {
