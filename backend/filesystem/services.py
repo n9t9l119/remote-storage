@@ -1,11 +1,11 @@
 import uuid
-from typing import Iterable, Union
+from typing import Iterable, Union, List
 
+from django.db import transaction
 from django.db.models.fields import files
 from django.http import HttpResponse
 
-from filesystem.helpers import get_folder_by_id, get_file_by_id, get_object_by_id, get_children, merge_into_iterable
-from filesystem.models import File, Folder
+from filesystem.models import File, Folder, FolderRootOwner, ObjectType
 from rest_framework.exceptions import ValidationError
 from base_settings.models import User
 from rest_framework.response import Response
@@ -13,96 +13,91 @@ from urllib.parse import quote
 
 
 class FilesystemService:
-    def get(self, id : uuid.UUID, user : User):
-        folder = get_folder_by_id(id)
-        children = get_children(parent_id=id)
-        return self.__response(folder, children)
+    def get(self, id : uuid.UUID, user : User) -> Response:
+        folder = self._get_folder_by_id(id)
+        return self._response(folder)
 
-    def createFolder(self, parent_id : uuid.UUID, name : str, user : User):
-        parent = get_folder_by_id(parent_id)
+    @transaction.atomic
+    def create_folder(self, parent_id : uuid.UUID, name : str, user : User) -> Response:
+        self._assert_not_contains_name(parent_id, name)
 
-        child_folders = Folder.objects.filter(parent_id=parent_id)
-        same_folder = child_folders.filter(name = name)
-        if same_folder.exists():
-            raise ValidationError({"error": {"text": f"folder with name {name} already exists"}})
+        parent = self._get_folder_by_id(parent_id)
 
-        folder = Folder()
-        folder.name = name
-        folder.owner = user
-        folder.parent = parent
-        folder.save()
+        Folder.objects.create(
+            name = name,
+            owner = user,
+            parent = parent
+        ).save()
 
-        child_files = File.objects.filter(parent_id = parent_id)
-        children = merge_into_iterable(child_folders, folder, child_files)
-        return self.__response(parent, children)
+        return self._response(parent)
 
-    def delete(self, id : uuid.UUID, user : User):
-        if id == user.root_folder_id:
-            raise ValidationError({"error": {"text": "you cannot delete root folder"}})
+    @transaction.atomic
+    def delete(self, id : uuid.UUID, user : User) -> Response:
+        self._assert_not_root_folder(id, "delete")
 
-        object = get_object_by_id(id)
-        parent_id = object.parent_id
-        object.delete()
+        fs_obj = self._get_fs_object_by_id(id)
+        parent = fs_obj.parent
+        fs_obj.delete()
 
-        children = get_children(parent_id=parent_id)
-        parent = get_folder_by_id(parent_id)
-        return self.__response(parent, children)
+        return self._response(parent)
 
-    def rename(self, id: uuid.UUID, new_name : str, user : User):
-        if id == user.root_folder_id:
-            raise ValidationError({"error": {"text": "you cannot rename root folder"}})
+    @transaction.atomic
+    def rename(self, id: uuid.UUID, new_name : str, user : User) -> Response:
+        self._assert_not_root_folder(id, "rename")
 
-        object = get_object_by_id(id)
-        object.name = new_name
-        object.save()
+        fs_obj = self._get_fs_object_by_id(id)
 
-        children = get_children(parent_id=object.parent_id)
-        parent = get_folder_by_id(object.parent_id)
-        return self.__response(parent, children)
+        self._assert_not_contains_name(fs_obj.parent_id, new_name)
 
-    def move(self, id: uuid.UUID, new_parent_id : uuid.UUID, user : User):
-        if id == user.root_folder_id:
-            raise ValidationError({"error": {"text": "you cannot move root folder"}})
+        fs_obj.name = new_name
+        fs_obj.save()
 
-        object = get_object_by_id(id)
-        old_parent = object.parent
-        object.parent = get_folder_by_id(new_parent_id)
-        object.save()
+        parent = self._get_folder_by_id(fs_obj.parent_id)
+        return self._response(parent)
 
-        children = get_children(parent_id=object.parent_id)
-        return self.__response(old_parent, children)
+    @transaction.atomic
+    def move(self, id: uuid.UUID, new_parent_id : uuid.UUID, user : User) -> Response:
+        self._assert_not_root_folder(id, "move")
 
-    def upload_file(self, file_data : files.File, parent_id : uuid.UUID, user : User):
-        parent = get_folder_by_id(parent_id)
-        child_files = File.objects.filter(parent_id = parent_id)
+        fs_obj = self._get_fs_object_by_id(id)
 
-        same_file = child_files.filter(name = file_data.name)
-        if same_file.exists():
-            raise ValidationError({"error": {"text": f"file with name {file_data.name} already exists"}})
+        self._assert_not_contains_name(new_parent_id, fs_obj.name)
 
-        file = File()
-        file.data = file_data
-        file.name = file_data.name
-        file.parent = parent
-        file.owner = user
+        old_parent = fs_obj.parent
+        fs_obj.parent = self._get_folder_by_id(new_parent_id)
+        fs_obj.save()
+
+        return self._response(old_parent)
+
+    @transaction.atomic
+    def upload_file(self, file_data : files.File, parent_id : uuid.UUID, user : User) -> Response:
+        self._assert_not_contains_name(parent_id, file_data.name)
+
+        parent = self._get_folder_by_id(parent_id)
+
+        file = File.objects.create(
+            data = file_data,
+            name = file_data.name,
+            parent = parent,
+            owner = user
+        )
         file.save()
 
-        child_folders = Folder.objects.filter(parent_id = parent_id)
-        children = merge_into_iterable(child_folders, file, child_files)
-        return self.__response(parent, children)
+        return self._response(parent)
 
-    def download_file(self, id : uuid.UUID, user : User):
-        file = get_file_by_id(id)
+    def download_file(self, id : uuid.UUID, user : User) -> Response:
+        file = self._get_file_by_id(id)
         headers = {
-            # 'Content-Type': "application/liquid",
+            'Content-Type': "application/liquid",
             'Content-Disposition': "attachment; filename*=utf-8''{}".format(quote(file.name))
         }
         return HttpResponse(file.data, headers=headers)
 
     @staticmethod
-    def __response(parent : Folder, children : Iterable[Union[Folder, File]]):
+    def _response(parent : Folder) -> Response:
+        children = FilesystemService._get_children(parent.id)
         objects = []
-        for child in children:
+        for child in sorted(children, key = lambda fs_obj: fs_obj.name):
             objects.append({
                 "type": child.type.name.lower(),
                 "id": child.id,
@@ -110,5 +105,49 @@ class FilesystemService:
                 "creation_date": child.creation_date.timestamp(),
                 "owner": child.owner.username
             })
-        return Response({"response": {"parent_id": parent.id, "owner": parent.owner.username, "objects": objects}})
+        return Response({"response": {
+            "id": parent.id,
+            "parent_id": parent.parent_id,
+            "owner": parent.owner.username,
+            "objects": objects
+        }})
+
+    @staticmethod
+    def _assert_not_contains_name(parent_id : uuid.UUID, name : str):
+        for fs_obj in FilesystemService._get_children(parent_id):
+            if fs_obj.name == name:
+                raise ValidationError({"error": {"text": f"Folder or file with name '{name}' already exists"}})
+
+    @staticmethod
+    def _assert_not_root_folder(id : uuid.UUID, action_name : str):
+        if FolderRootOwner.objects.filter(root_id = id).exists():
+            raise ValidationError({"error": {"text": f"You can't {action_name} root folder"}})
+
+    @staticmethod
+    def _get_folder_by_id(id: uuid.UUID) -> Folder:
+        folder = Folder.objects.filter(id=id)
+        if not folder:
+            raise ValidationError({"error": {"text": f"Folder with id '{id}' not found"}})
+        return folder.first()
+
+    @staticmethod
+    def _get_file_by_id(id: uuid.UUID) -> File:
+        file = File.objects.filter(id=id)
+        if not file:
+            raise ValidationError({"error": {"text": f"File with id '{id}' not found"}})
+        return file.first()
+
+    @staticmethod
+    def _get_fs_object_by_id(id: uuid.UUID) -> Union[Folder, File]:
+        for objType in ObjectType:
+            obj = objType.model.objects.filter(id=id)
+            if obj:
+                return obj.first()
+        raise ValidationError({"error": {"text": f"Folder or file with id '{id}' not found"}})
+
+    @staticmethod
+    def _get_children(parent_id: uuid.UUID) -> List[Union[Folder, File]]:
+        for objType in ObjectType:
+            for obj in objType.model.objects.filter(parent_id=parent_id):
+                yield obj
 

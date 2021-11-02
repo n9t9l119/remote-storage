@@ -45,7 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'filesystem',
-    'base_settings'
+    'base_settings',
+
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -137,9 +139,9 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / './client/build/static']
 
-MEDIA_URL = '/storage/'
+STORAGE_URL = '/storage/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
+STORAGE_ROOT = os.path.join(BASE_DIR, 'storage')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

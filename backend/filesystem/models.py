@@ -1,11 +1,13 @@
-from typing import Union
+from django.core.files.storage import FileSystemStorage
 
 from base_settings.models import User
-from django.db import models
+from django.db import models, transaction
 import uuid
-import os
 
 from enum import Enum
+
+from filesystem.fields import UniqueNameFileField
+from remoteStorage import settings
 
 
 class Folder(models.Model):
@@ -19,21 +21,18 @@ class Folder(models.Model):
     def type(self):
         return ObjectType.FOLDER
 
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'parent', 'owner'], name='unique_folder')
         ]
 
-class UniqueNameFileField(models.FileField):
-     def generate_filename(self, instance, filename):
-         _, ext = os.path.splitext(filename)
-         name = f'{uuid.uuid4().hex}{ext}'
-         return super().generate_filename(instance, name)
-
 class File(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, blank=False)
-    data = UniqueNameFileField(upload_to='%Y/%m/%d/', blank=False)
+    data = UniqueNameFileField(storage=FileSystemStorage(location=settings.STORAGE_ROOT, base_url=settings.STORAGE_URL), upload_to='%Y/%m/%d/', blank=False)
     parent = models.ForeignKey(Folder, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -45,6 +44,16 @@ class File(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'parent', 'owner'], name='unique_file')
+        ]
+
+class FolderRootOwner(models.Model):
+    root = models.ForeignKey(Folder, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        db_table = 'folder_root_owner'
+        constraints = [
+            models.UniqueConstraint(fields=['root', 'user'], name='unique_root')
         ]
 
 class ObjectType(Enum):
