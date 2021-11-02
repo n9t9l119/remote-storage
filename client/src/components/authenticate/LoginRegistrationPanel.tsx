@@ -5,6 +5,7 @@ import {RegistrationBlock} from "./RegistrationBlock";
 import './LoginRegistration.css'
 import RequestController from "../../http/RequestController";
 import RegisterRequest, {RegisterResponse} from "../../requests/RegisterRequest";
+import AuthController from "../../controllers/AuthController";
 
 export const LoginRegistrationPanel = () => {
     const [username, setUsername] = useState<string>('');
@@ -36,15 +37,10 @@ export const LoginRegistrationPanel = () => {
 
     async function submitForm() {
         if (panelMode === 'registration') {
-            const command = new RequestController<RegisterResponse>(new RegisterRequest({
-                username: username,
-                password: password,
-                password2: password,
-                email: email
-            }))
-            const response = await command.execute()
-
-            console.log(response)
+            await AuthController.register({username, email, password, password2: password})
+        }
+        else if(panelMode === 'login'){
+            await AuthController.login({username, password})
         }
     }
 
