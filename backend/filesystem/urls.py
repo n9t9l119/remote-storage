@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from filesystem.views import GetViewSet, RenameViewSet, MoveViewSet, DeleteViewSet, CreateFolderViewSet, \
-    UploadFileViewSet, DownloadFileViewSet
-from django.conf import settings
+from filesystem.views import (CreateFolderViewSet, DeleteViewSet,
+                              DownloadFileViewSet, GetViewSet, MoveViewSet,
+                              RenameViewSet, UploadFileViewSet)
 
 urlpatterns = [
     path('get', GetViewSet.as_view()),

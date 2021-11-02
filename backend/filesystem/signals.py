@@ -1,12 +1,12 @@
+from base_settings.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from base_settings.models import User
 from filesystem.models import Folder, FolderRootOwner
 
 
 @receiver(post_save, sender=User)
-def create_filesystem_on_user_creating(instance : User, created : bool, **kwargs):
+def create_filesystem_on_user_creating(instance: User, created: bool, **kwargs):
     if not created:
         return
     root_folder = Folder.objects.create(

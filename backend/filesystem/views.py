@@ -1,23 +1,16 @@
-import datetime
-import time
-import uuid
-from django.shortcuts import render
-from rest_framework import status
-from rest_framework import viewsets
-from rest_framework.response import Response
-from filesystem.parsers import CustomFileUploadParser
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
+
 from base_settings.models import User
-from filesystem.models import File, Folder
+
+from filesystem.helpers import get_file_param, get_str_param, get_uuid_param
+from filesystem.parsers import CustomFileUploadParser
 from filesystem.services import FilesystemService
-from filesystem.helpers import get_uuid_param, get_str_param, get_file_param
-import datetime
+
 
 class GetViewSet(APIView):
     def post(self, request):
         id = get_uuid_param(request, 'id')
-        user = User.objects.first() #TODO: Получать юзера в запросе
+        user = User.objects.first()  # TODO: Получать юзера в запросе
         return FilesystemService().get(id, user)
 
 
@@ -60,6 +53,7 @@ class UploadFileViewSet(APIView):
         file_data = get_file_param(request)
         user = User.objects.first()
         return FilesystemService().upload_file(file_data, parent_id, user)
+
 
 class DownloadFileViewSet(APIView):
     def get(self, request):
