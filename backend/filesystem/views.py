@@ -11,7 +11,7 @@ from rest_framework.exceptions import ValidationError
 from base_settings.models import User
 from filesystem.models import File, Folder
 from filesystem.services import FilesystemService
-from filesystem.helpers import get_uuid_param, get_str_param
+from filesystem.helpers import get_uuid_param, get_str_param, get_file_param
 import datetime
 
 class GetViewSet(APIView):
@@ -57,7 +57,7 @@ class UploadFileViewSet(APIView):
 
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
-        file_data = request.FILES['file']
+        file_data = get_file_param(request)
         user = User.objects.first()
         return FilesystemService().upload_file(file_data, parent_id, user)
 
@@ -65,4 +65,4 @@ class DownloadFileViewSet(APIView):
     def get(self, request):
         id = get_uuid_param(request, 'id')
         user = User.objects.first()
-        return FilesystemService().download_file(id, user)  # get(id, user)
+        return FilesystemService().download_file(id, user)

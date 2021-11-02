@@ -139,9 +139,13 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / './client/build/static']
 
+MEDIA_URL = '/media/' 
+
+MEDIA_ROOT = BASE_DIR / 'media'
+
 STORAGE_URL = '/storage/'
 
-STORAGE_ROOT = os.path.join(BASE_DIR, 'storage')
+STORAGE_ROOT = BASE_DIR / 'storage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

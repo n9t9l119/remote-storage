@@ -1,10 +1,8 @@
-import os
-
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from base_settings.models import User
-from filesystem.models import Folder, FolderRootOwner, File
+from filesystem.models import Folder, FolderRootOwner
 
 
 @receiver(post_save, sender=User)
@@ -22,4 +20,3 @@ def create_filesystem_on_user_creating(instance : User, created : bool, **kwargs
         user=instance
     )
     folder_root_owner.save()
-    print("sdjfhsdjfhsdkjfhsjkdf")

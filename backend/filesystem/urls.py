@@ -3,7 +3,7 @@ from django.urls import path
 
 from filesystem.views import GetViewSet, RenameViewSet, MoveViewSet, DeleteViewSet, CreateFolderViewSet, \
     UploadFileViewSet, DownloadFileViewSet
-from remoteStorage import settings
+from django.conf import settings
 
 urlpatterns = [
     path('get', GetViewSet.as_view()),

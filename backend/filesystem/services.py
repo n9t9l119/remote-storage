@@ -1,12 +1,12 @@
 import uuid
-from typing import Iterable, Union, List
+from typing import Iterable, Union
 
 from django.db import transaction
 from django.db.models.fields import files
 from django.http import HttpResponse
 
+from filesystem.exceptions import JsonValidationError
 from filesystem.models import File, Folder, FolderRootOwner, ObjectType
-from rest_framework.exceptions import ValidationError
 from base_settings.models import User
 from rest_framework.response import Response
 from urllib.parse import quote
@@ -98,13 +98,18 @@ class FilesystemService:
         children = FilesystemService._get_children(parent.id)
         objects = []
         for child in sorted(children, key = lambda fs_obj: fs_obj.name):
-            objects.append({
+            info = {
                 "type": child.type.name.lower(),
                 "id": child.id,
+                "owner_name": child.owner.username,
+                "owner_id": child.owner.user_id,
                 "name": child.name,
                 "creation_date": child.creation_date.timestamp(),
-                "owner": child.owner.username
-            })
+            }
+            if isinstance(child, File):
+                info["extension"] = child.extension
+            objects.append(info)
+
         return Response({"response": {
             "id": parent.id,
             "parent_id": parent.parent_id,
@@ -116,25 +121,25 @@ class FilesystemService:
     def _assert_not_contains_name(parent_id : uuid.UUID, name : str):
         for fs_obj in FilesystemService._get_children(parent_id):
             if fs_obj.name == name:
-                raise ValidationError({"error": {"text": f"Folder or file with name '{name}' already exists"}})
+                raise JsonValidationError(f"Folder or file with name '{name}' already exists")
 
     @staticmethod
     def _assert_not_root_folder(id : uuid.UUID, action_name : str):
         if FolderRootOwner.objects.filter(root_id = id).exists():
-            raise ValidationError({"error": {"text": f"You can't {action_name} root folder"}})
+            raise JsonValidationError(f"You can't {action_name} root folder")
 
     @staticmethod
     def _get_folder_by_id(id: uuid.UUID) -> Folder:
         folder = Folder.objects.filter(id=id)
         if not folder:
-            raise ValidationError({"error": {"text": f"Folder with id '{id}' not found"}})
+            raise JsonValidationError(f"Folder with id '{id}' not found")
         return folder.first()
 
     @staticmethod
     def _get_file_by_id(id: uuid.UUID) -> File:
         file = File.objects.filter(id=id)
         if not file:
-            raise ValidationError({"error": {"text": f"File with id '{id}' not found"}})
+            raise JsonValidationError(f"File with id '{id}' not found")
         return file.first()
 
     @staticmethod
@@ -143,10 +148,10 @@ class FilesystemService:
             obj = objType.model.objects.filter(id=id)
             if obj:
                 return obj.first()
-        raise ValidationError({"error": {"text": f"Folder or file with id '{id}' not found"}})
+        raise JsonValidationError(f"Folder or file with id '{id}' not found")
 
     @staticmethod
-    def _get_children(parent_id: uuid.UUID) -> List[Union[Folder, File]]:
+    def _get_children(parent_id: uuid.UUID) -> Iterable[Union[Folder, File]]:
         for objType in ObjectType:
             for obj in objType.model.objects.filter(parent_id=parent_id):
                 yield obj
