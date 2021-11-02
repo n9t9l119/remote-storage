@@ -15,7 +15,10 @@ from filesystem.models import File, Folder, FolderRootOwner, ObjectType
 
 class FilesystemService:
     def get(self, id: uuid.UUID, user: User) -> Response:
-        folder = self._get_folder_by_id(id)
+        if id is None:
+            folder = FolderRootOwner.objects.get(user=user).root
+        else:
+            folder = self._get_folder_by_id(id)
         return self._response(folder)
 
     @transaction.atomic

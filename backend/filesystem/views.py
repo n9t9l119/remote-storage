@@ -9,7 +9,7 @@ from filesystem.services import FilesystemService
 
 class GetViewSet(APIView):
     def post(self, request):
-        id = get_uuid_param(request, 'id')
+        id = get_uuid_param(request, 'id', True)
         user = User.objects.first()  # TODO: Получать юзера в запросе
         return FilesystemService().get(id, user)
 
