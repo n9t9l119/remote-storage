@@ -12,9 +12,7 @@ export default class RequestController<T> {
         this.method = request.method
         this.command = request
         this.callback = callback
-        this.axios = axios.create({
-            baseURL: DESTINATION_HOST + '/api/v1',
-        })
+        this.axios = this.axiosInstanceCreate()
     }
 
     async execute(): Promise<AxiosResponse<T>> {
@@ -23,5 +21,37 @@ export default class RequestController<T> {
         } else {
             return this.axios.get<T>(this.command.route, this.command.getParameters())
         }
+    }
+
+    axiosInstanceCreate(): AxiosInstance {
+        const axiosInstance = axios.create({
+            baseURL: DESTINATION_HOST + '/api/v1',
+        })
+
+        axiosInstance.interceptors.request.use((config) => {
+            const token = localStorage.getItem('accessToken');
+            if (config.headers && token) config.headers.Authorization = `JWT ${token}`
+            return config
+        })
+
+        axiosInstance.interceptors.response.use((config) => {
+                return config
+            }, async (error) => {
+                const originRequest = error.config
+                if (error.response.status === 401 && error.config && originRequest._isFirstRetry) {
+                    originRequest._isFirstRetry = true
+                    try {
+                        const response = await axios.get<{ accessToken: string }>(`${DESTINATION_HOST}/refresh/`)
+                        localStorage.setItem('accessToken', response.data.accessToken)
+                        return axiosInstance.request(originRequest)
+                    } catch (e) {
+                        console.log('Не авторизован')
+                    }
+                }
+                throw error
+            }
+        )
+
+        return axiosInstance
     }
 }
