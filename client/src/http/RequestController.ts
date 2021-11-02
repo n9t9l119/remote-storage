@@ -29,7 +29,8 @@ export default class RequestController<T> {
         })
 
         axiosInstance.interceptors.request.use((config) => {
-            if (config.headers) config.headers.Authorization = `Bearer ${localStorage.getItem('accessToken')}`
+            const token = localStorage.getItem('accessToken');
+            if (config.headers && token) config.headers.Authorization = `JWT ${token}`
             return config
         })
 
