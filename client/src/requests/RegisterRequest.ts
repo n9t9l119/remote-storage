@@ -7,7 +7,7 @@ export interface RegisterResponse {
     last_name?: string,
 }
 
-interface RegisterParams extends Params{
+export interface RegisterParams extends Params{
     username: string,
     email: string,
     password: string,
@@ -18,7 +18,7 @@ interface RegisterParams extends Params{
 
 export default class RegisterRequest implements Request {
     method: MethodType = "post"
-    route = "/register/"
+    route: string = "/register/"
     parameters: RegisterParams
 
     constructor(parameters: RegisterParams) {
