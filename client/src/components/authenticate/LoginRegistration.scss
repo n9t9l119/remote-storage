@@ -1,0 +1,266 @@
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(78deg, rgb(12, 150, 122), #5f4bbe, #039878);
+    background-size: 400% 400%;
+    animation: gradient 40s ease infinite;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 100%;
+    }
+    50% {
+        background-position: 100% 0%;
+    }
+    100% {
+        background-position: 0% 100%;
+    }
+}
+
+.wrapper {
+    position: relative;
+}
+
+.shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    animation: shape 12s linear infinite;
+    width: 100px;
+    height: 100px;
+
+    &:nth-child(1) {
+        top: 415px;
+        left: -64px;
+        background: linear-gradient(-45deg, rgba(0, 4, 255, 0.5) 0%, rgba(0, 4, 255, 0.25) 50%, rgba(0, 72, 255, 0.24) 100%);
+        animation-delay: -4s;
+    }
+
+    &:nth-child(2) {
+        top: 446px;
+        left: 233px;
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        z-index: 1;
+        animation-delay: -2s;
+    }
+
+    &:nth-child(3) {
+        top: 146px;
+        left: 305px;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        background: linear-gradient(-45deg, rgba(0, 4, 255, 0.5) 0%, rgba(0, 4, 255, 0.25) 50%, rgba(0, 72, 255, 0.24) 100%);
+        animation-delay: -5s;
+    }
+
+    &:nth-child(4) {
+        top: -29px;
+        left: 231px;
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        background: linear-gradient(-45deg, rgba(0, 4, 255, 0.5) 0%, rgba(0, 4, 255, 0.25) 50%, rgba(0, 72, 255, 0.24) 100%);
+        z-index: 1;
+        animation-delay: -3s;
+    }
+
+    &:nth-child(5) {
+        top: 105px;
+        left: -95px;
+        width: 49px;
+        height: 49px;
+        border-radius: 8px;
+        animation-delay: -5s;
+    }
+
+    &:nth-child(6) {
+        top: 290px;
+        left: 302px;
+        width: 37px;
+        height: 37px;
+        border-radius: 7px;
+        z-index: 1;
+        animation-delay: -1s;
+    }
+
+    &:nth-child(7) {
+        top: -40px;
+        left: -20px;
+        background: linear-gradient(-45deg, rgba(0, 4, 255, 0.5) 0%, rgba(0, 4, 255, 0.25) 50%, rgba(0, 72, 255, 0.24) 100%);
+        width: 90px;
+        height: 90px;
+        z-index: 1;
+        animation-delay: -7s;
+    }
+
+    &:nth-child(9) {
+        animation: none;
+        top: -10px;
+        right: -40px;
+        width: 80px;
+        height: 80px;
+
+        button {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            outline: none;
+            border: none;
+            border-radius: inherit;
+            cursor: pointer;
+            color: rgb(255, 255, 255);
+            text-transform: uppercase;
+            font-size: 15px;
+            font-weight: bold;
+
+            &:hover {
+                border: 1px solid rgba(208, 208, 208, 0.75);
+            }
+
+            &:active {
+                background-color: rgba(115, 115, 115, 0.24);
+            }
+        }
+    }
+}
+
+@keyframes shape {
+    0%, 100% {
+        transform: translateY(-30px);
+    }
+
+    50% {
+        transform: translateY(30px);
+    }
+}
+
+.auth-panel {
+    padding: 50px 20px;
+    box-sizing: border-box;
+    width: 360px;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        bottom: 6px;
+        left: 6px;
+        border-radius: 5px;
+        pointer-events: none;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 2%);
+    }
+
+    form {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 90%;
+
+        h3 {
+            font-weight: bold;
+            font-size: 30px;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.52);
+            display: inline-block;
+            user-select: none;
+        }
+
+        .input-field {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-bottom: 35px;
+
+            label {
+                position: absolute;
+                left: 10px;
+                top: 0;
+                line-height: 30px;
+                transition: 0.4s;
+                color: #333333;
+                user-select: none;
+                cursor: text;
+            }
+
+            input {
+                width: inherit;
+                height: 30px;
+                box-sizing: border-box;
+                border-radius: 5px;
+                padding: 0 10px;
+                color: white;
+                background-color: rgba(255, 255, 255, 0.24);
+                border: none;
+                outline: none;
+
+                &:focus, &:valid {
+                    + label {
+                        top: -26px;
+                        font-size: 12px;
+                        color: white;
+                    }
+                }
+            }
+        }
+
+        .checkbox-field {
+            align-self: start;
+            margin-top: -15px;
+            user-select: none;
+
+            label {
+                color: white;
+                margin-right: 10px;
+            }
+
+            input {
+                background-color: rgba(255, 255, 255, 0.24);
+                border: none;
+                outline: none;
+            }
+        }
+    }
+
+    button {
+        margin-top: 50px;
+        width: 60%;
+        height: 30px;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.24);
+        border: none;
+        outline: none;
+        cursor: pointer;
+        color: rgb(255, 255, 255);
+        text-transform: uppercase;
+
+
+        &:hover {
+            border: 1px solid rgba(208, 208, 208, 0.75);
+        }
+
+        &:active {
+            background-color: rgba(115, 115, 115, 0.24);
+        }
+    }
+}

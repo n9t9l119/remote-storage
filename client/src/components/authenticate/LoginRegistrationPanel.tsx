@@ -40,7 +40,7 @@ export const LoginRegistrationPanel = () => {
             await AuthController.register({username, email, password, password2: password})
         }
         else if(panelMode === 'login'){
-            await AuthController.login({username, password})
+            await AuthController.login({username: email, password})
         }
     }
 
