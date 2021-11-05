@@ -24,17 +24,17 @@
         }
 
         &.success {
-            @include glass(16, 168, 86, 15, 0.4);
+            @include glass(16, 168, 86, 15, 0.5);
             border: 3px solid #10a856;
         }
 
         &.error {
-            @include glass(231, 76, 60, 15, 0.4);
+            @include glass(231, 76, 60, 15, 0.5);
             border: 3px solid #e74c3c;
         }
 
         &.primary {
-            @include glass(52, 152, 219, 15, 0.4);
+            @include glass(52, 152, 219, 15, 0.5);
             border: 3px solid #3498db;
         }
 
