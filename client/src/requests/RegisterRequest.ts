@@ -1,10 +1,7 @@
 import Request, {MethodType, Params} from "../http/RequestInterface";
 
 export interface RegisterResponse {
-    username: string,
-    email: string,
-    first_name?: string,
-    last_name?: string,
+    access: string
 }
 
 export interface RegisterParams extends Params{

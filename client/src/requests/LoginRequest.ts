@@ -5,7 +5,7 @@ export interface LoginParams extends Params{
     password: string,
 }
 export interface LoginResponse{
-    accessToken: string,
+    access: string,
 }
 
 export default class LoginRequest implements Request {

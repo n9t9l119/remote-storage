@@ -1,0 +1,42 @@
+@import "../../scss/mixins";
+
+.message-box {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    transform: translateY(-100%);
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+
+    .message {
+        border-radius: 10px;
+        padding: 5px 15px;
+        margin: 10px;
+        color: #d0d0d0;
+        opacity: 1;
+        cursor: pointer;
+        transition: 1s;
+        user-select: none;
+
+        &.vanishing {
+            opacity: 0;
+        }
+
+        &.success {
+            @include glass(16, 168, 86, 15, 0.4);
+            border: 3px solid #10a856;
+        }
+
+        &.error {
+            @include glass(231, 76, 60, 15, 0.4);
+            border: 3px solid #e74c3c;
+        }
+
+        &.primary {
+            @include glass(52, 152, 219, 15, 0.4);
+            border: 3px solid #3498db;
+        }
+
+    }
+}
