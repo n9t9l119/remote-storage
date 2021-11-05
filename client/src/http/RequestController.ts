@@ -1,6 +1,10 @@
 import Request, {MethodType} from "./RequestInterface";
-import axios, {AxiosResponse, AxiosInstance} from "axios";
+import axios, {AxiosResponse, AxiosInstance, AxiosError} from "axios";
 import {DESTINATION_HOST} from "../utils/consts";
+
+interface ErrorType {
+    error: string
+}
 
 export default class RequestController<T> {
     private readonly method: MethodType
@@ -15,11 +19,11 @@ export default class RequestController<T> {
         this.axios = this.axiosInstanceCreate()
     }
 
-    async execute(): Promise<AxiosResponse<T>> {
+    async execute(): Promise<AxiosResponse<T> & AxiosError<ErrorType>> {
         if (this.method === 'post') {
-            return this.axios.post<T>(this.command.route, this.command.getParameters())
+            return this.axios.post<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
         } else {
-            return this.axios.get<T>(this.command.route, this.command.getParameters())
+            return this.axios.get<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
         }
     }
 

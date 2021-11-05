@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
 import {LoginBlock} from "./LoginBlock";
 import {RegistrationBlock} from "./RegistrationBlock";
-
 import './LoginRegistration.css'
-import RequestController from "../../http/RequestController";
-import RegisterRequest, {RegisterResponse} from "../../requests/RegisterRequest";
 import AuthController from "../../controllers/AuthController";
+import {appEndWaiting, appStartWaiting, AppStateType} from "../../redux/reducers/appReducer";
+import {useTypedDispatch, useTypedSelector} from "../../redux/hooks";
 
 export const LoginRegistrationPanel = () => {
     const [username, setUsername] = useState<string>('');
@@ -14,6 +13,9 @@ export const LoginRegistrationPanel = () => {
     const [rememberFlag, setRememberFlag] = useState<boolean>(false);
 
     const [panelMode, setPanelMode] = useState<'login' | 'registration'>('login');
+
+    const appState = useTypedSelector<AppStateType>(state => state.app)
+    const dispatch = useTypedDispatch()
 
     function usernameHandler(username: string) {
         setUsername(username)
@@ -36,24 +38,25 @@ export const LoginRegistrationPanel = () => {
     }
 
     async function submitForm() {
+        dispatch(appStartWaiting())
         if (panelMode === 'registration') {
             await AuthController.register({username, email, password, password2: password})
+        } else if (panelMode === 'login') {
+            await AuthController.login({username: email, password})
         }
-        else if(panelMode === 'login'){
-            await AuthController.login({username, password})
-        }
+        dispatch(appEndWaiting())
     }
 
     return (
         <div className="auth-container">
             <div className="wrapper">
-                <div className="shape"></div>
-                <div className="shape"></div>
-                <div className="shape"></div>
-                <div className="shape"></div>
-                <div className="shape"></div>
-                <div className="shape"></div>
-                <div className="shape"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
+                <div className="shape glass"></div>
                 <div className="auth-panel">
                     {
                         panelMode === 'registration' &&
@@ -75,9 +78,10 @@ export const LoginRegistrationPanel = () => {
                             password={password}
                             rememberFlag={rememberFlag}/>
                     }
-                    <button onClick={submitForm}>{panelMode === "login" ? "login" : "sign up"}</button>
+                    <button onClick={submitForm}
+                            disabled={appState.waiting}>{panelMode === "login" ? "login" : "sign up"}</button>
                 </div>
-                <div className="shape">
+                <div className="shape glass">
                     <button onClick={togglePanelMode}>{panelMode === "registration" ? "login" : "sing up"}</button>
                 </div>
             </div>
