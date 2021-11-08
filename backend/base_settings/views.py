@@ -6,25 +6,41 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from remoteStorage.rest_api.jwt.generate_jwt import GenerateJwt
-from base_settings.models import User
+
+
+def obtain_tokens(request):
+    jwt_tokens = GenerateJwt().obtain_jwt(request.data['username'])
+    response = Response(jwt_tokens)
+    response.set_cookie('refresh_token', jwt_tokens['refresh'])
+
+    return response
 
 
 class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
     def post(self, request, *args, **kwargs):
+        RegisterSerializer(data=request.data).is_valid(raise_exception=True)
         self.create(request, *args, **kwargs)
-        return Response(GenerateJwt().obtain_jwt(request.data['username']))
+
+        return obtain_tokens(request)
 
 
 class LogIn(APIView):
-    serializer_class = LoginSerializer
 
-    def post(self, request):
-        self.serializer_class().validate(request.data)
+    def post(self, request, *args, **kwargs):
+        LoginSerializer(data=request.data).is_valid(raise_exception=True)
 
-        return Response(GenerateJwt().obtain_jwt(request.data['username']))
+        return obtain_tokens(request)
+
+
+class LogOut(APIView):
+
+    def get(self, request):
+        response = Response()
+        response.delete_cookie('refresh_token')
+
+        return response
 
 
 class RefreshToken(APIView):

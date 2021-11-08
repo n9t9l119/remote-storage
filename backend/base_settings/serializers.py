@@ -11,6 +11,10 @@ class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
     def validate(self, attrs):
         user = User.objects.filter(username=attrs.get('username')).first()
         if user is None or not user.check_password(attrs.get('password')):
