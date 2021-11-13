@@ -110,6 +110,13 @@
             &:active {
                 background-color: rgba(115, 115, 115, 0.24);
             }
+
+            &:disabled {
+                &:hover {
+                    cursor: default;
+                    border: none;
+                }
+            }
         }
     }
 }

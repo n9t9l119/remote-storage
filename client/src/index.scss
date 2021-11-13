@@ -1,4 +1,5 @@
 @import 'scss/mixins';
+
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +11,11 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
 
+#root {
+    width: inherit;
+    height: 100vh;
     background: linear-gradient(78deg, rgb(12, 150, 122), #5f4bbe, #039878);
     background-size: 400% 400%;
     animation: gradient 40s ease infinite;
@@ -33,6 +38,6 @@ code {
     monospace;
 }
 
-.glass{
-    @include glass(255,255,255,5,0.1)
+.glass {
+    @include glass(255, 255, 255, 5, 0.1)
 }

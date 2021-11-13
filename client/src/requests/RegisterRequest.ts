@@ -1,10 +1,7 @@
-import Request, {MethodType, Params} from "../http/RequestInterface";
+import {MethodType, Params} from "../http/RequestInterface";
+import BaseRequest from "./BaseRequest";
 
-export interface RegisterResponse {
-    access: string
-}
-
-export interface RegisterParams extends Params{
+export interface RegisterParams extends Params {
     username: string,
     email: string,
     password: string,
@@ -13,16 +10,17 @@ export interface RegisterParams extends Params{
     lastname?: string,
 }
 
-export default class RegisterRequest implements Request {
+export interface RegisterResponse {
+    access: string
+}
+
+export default class RegisterRequest extends BaseRequest {
     method: MethodType = "post"
     route: string = "/register/"
     parameters: RegisterParams
 
     constructor(parameters: RegisterParams) {
+        super()
         this.parameters = parameters
-    }
-
-    getParameters(): RegisterParams {
-        return this.parameters
     }
 }
