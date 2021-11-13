@@ -7,5 +7,5 @@ export default interface Request {
     route: string,
     parameters?: Params
 
-    getParameters: () => Params
+    getParameters: () => Params | {}
 }

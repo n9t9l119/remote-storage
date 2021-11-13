@@ -14,7 +14,7 @@ class JwtAuthentication(authentication.BaseAuthentication):
         authorization_heaader = request.headers.get('Authorization')
 
         if not authorization_heaader:
-            return None
+            return None, ''
         try:
             header_prefix, access_token = authorization_heaader.split(' ')
 
@@ -23,20 +23,19 @@ class JwtAuthentication(authentication.BaseAuthentication):
 
             payload = GenerateJwt().get_payload_data(access_token)
 
+            user = User.objects.filter(user_id=payload['uid']).first()
+
+            if user is None:
+                raise exceptions.AuthenticationFailed('User not found')
+
+            if not user.is_active:
+                raise exceptions.AuthenticationFailed('user is inactive')
+
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed('access_token expired')
+            user = None
 
-        user = User.objects.filter(user_id=payload['uid']).first()
-
-        if user is None:
-            raise exceptions.AuthenticationFailed('User not found')
-
-        if not user.is_active:
-            raise exceptions.AuthenticationFailed('user is inactive')
-
-        self.enforce_csrf(request)
-
-        return user, access_token
+        finally:
+            return user, access_token
 
     def enforce_csrf(self, request):
 
