@@ -117,6 +117,7 @@ class FilesystemService:
 
         return Response({"response": {
             "id": parent.id,
+            "name": parent.name if parent.parent_id is not None else None,
             "parent_id": parent.parent_id,
             "owner": parent.owner.username,
             "objects": objects
