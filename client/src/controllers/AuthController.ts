@@ -39,7 +39,7 @@ export default class AuthController {
         store.dispatch(appEndLoading())
     }
 
-    static async logout() {
+    static async logout(managed?: boolean) {
         store.dispatch(appStartLoading())
         const command = new RequestController(new LogoutRequest())
         const result = await command.execute()
@@ -47,18 +47,18 @@ export default class AuthController {
         if (result.status === 200) {
             localStorage.removeItem('accessToken')
             store.dispatch(logout())
-            MessageController.primary('Произведен выход из системы')
+            if (managed) MessageController.primary('Произведен выход из системы')
         } else if (result.response && result.response.status !== 500) {
             MessageController.error(result.response.data.error)
         }
         store.dispatch(appEndLoading())
     }
 
-    static async checkAuth(){
+    static async checkAuth() {
         const command = new RequestController(new CheckAuthRequest())
         const result = await command.execute()
 
-        if(result.status === 200){
+        if (result.status === 200) {
             store.dispatch(login())
         }
     }

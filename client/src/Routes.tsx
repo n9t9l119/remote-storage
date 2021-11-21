@@ -1,13 +1,15 @@
 import React from "react";
 import {Redirect, Route, Switch} from "react-router-dom";
 import {LoginPage} from "./pages/LoginPage";
-import AuthController from "./controllers/AuthController";
+import MainPage from "./pages/MainPage";
 
 const useRoutes = (isAuth: boolean) => {
     if (!isAuth) {
         return (
             <Switch>
-                <Route path='/login' exact><LoginPage/></Route>
+                <Route path='/login' exact>
+                    <LoginPage/>
+                </Route>
                 <Redirect to='/login'/>
             </Switch>
         )
@@ -15,8 +17,7 @@ const useRoutes = (isAuth: boolean) => {
         return (
             <Switch>
                 <Route path='/main' exact>
-                    <p>some page</p>
-                    <button onClick={AuthController.logout}>Sign Out</button>
+                    <MainPage/>
                 </Route>
                 <Redirect to='/main'/>
             </Switch>

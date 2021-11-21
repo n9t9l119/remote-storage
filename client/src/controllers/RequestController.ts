@@ -18,14 +18,14 @@ class RequestController<T> {
         this.command = request
         this.callback = callback
 
-        if(!RequestController.axios) RequestController.axios = this.axiosInstanceCreate()
+        if (!RequestController.axios) RequestController.axios = this.axiosInstanceCreate()
     }
 
     async execute(): Promise<AxiosResponse<T> & AxiosError<ErrorType>> {
         if (this.method === 'post') {
-            return RequestController.axios.post<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
+            return RequestController.axios.post<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
         } else {
-            return RequestController.axios.get<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
+            return RequestController.axios.get<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
         }
     }
 
@@ -47,14 +47,13 @@ class RequestController<T> {
                 if (error.response.status === 403 && error.config && !originRequest._isFirstRetry) {
                     originRequest._isFirstRetry = true
                     try {
-                        const response = await axios.get<{ accessToken: string }>(`${DESTINATION_HOST}/refresh/`)
+                        const response = await axios.post<{ accessToken: string }>(`${DESTINATION_HOST}/api/v1/refresh`)
                         localStorage.setItem('accessToken', response.data.accessToken)
                         return axiosInstance.request(originRequest)
                     } catch (e) {
                         console.log('Не авторизован')
+                        await AuthController.logout()
                     }
-                } else {
-                    await AuthController.logout()
                 }
                 throw error
             }
