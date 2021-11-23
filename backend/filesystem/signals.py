@@ -31,7 +31,6 @@ def update_used_space_on_file_uploading(instance : File, created: bool, **kwargs
     file_length = instance.data.size
     if fs_info.used_space + file_length > fs_info.available_space:
         raise JsonValidationError("file size exceed max available space")
-    fs_info = UserStorageInfo.objects.get(user = instance.owner)
 
     fs_info.used_space += file_length
     fs_info.save(force_update = True)
