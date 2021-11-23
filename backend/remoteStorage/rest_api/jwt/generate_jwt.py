@@ -15,14 +15,11 @@ class GenerateJwt:
     def get_payload_data(self, token, access_token=False):
         secret_key = self.config['REFRESH_TOKEN_SECRET_KEY'] \
             if access_token else self.config['ACCESS_TOKEN_SECRET_KEY']
-        try:
-            payload = jwt.decode(
-                token,
-                secret_key,
-                algorithms=['HS256'],
-            )
-        except:
-            raise Exception('token is dead')
+        payload = jwt.decode(
+            token,
+            secret_key,
+            algorithms=['HS256'],
+        )
 
         return payload
 

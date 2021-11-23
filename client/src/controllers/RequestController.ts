@@ -1,33 +1,35 @@
-import Request, {MethodType} from "./RequestInterface";
+import Request, {MethodType} from "../http/RequestInterface";
 import axios, {AxiosResponse, AxiosInstance, AxiosError} from "axios";
 import {DESTINATION_HOST} from "../utils/consts";
+import AuthController from "./AuthController";
 
 interface ErrorType {
     error: string
 }
 
-export default class RequestController<T> {
+class RequestController<T> {
     private readonly method: MethodType
     private command: Request
-    private axios: AxiosInstance
+    private static axios: AxiosInstance
     private callback: () => void | undefined
 
     constructor(request: Request, callback?: any) {
         this.method = request.method
         this.command = request
         this.callback = callback
-        this.axios = this.axiosInstanceCreate()
+
+        if (!RequestController.axios) RequestController.axios = this.axiosInstanceCreate()
     }
 
     async execute(): Promise<AxiosResponse<T> & AxiosError<ErrorType>> {
         if (this.method === 'post') {
-            return this.axios.post<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
+            return RequestController.axios.post<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
         } else {
-            return this.axios.get<T>(this.command.route, this.command.getParameters()).catch(reason => reason)
+            return RequestController.axios.get<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
         }
     }
 
-    axiosInstanceCreate(): AxiosInstance {
+    private axiosInstanceCreate(): AxiosInstance {
         const axiosInstance = axios.create({
             baseURL: DESTINATION_HOST + '/api/v1',
         })
@@ -42,14 +44,15 @@ export default class RequestController<T> {
                 return config
             }, async (error) => {
                 const originRequest = error.config
-                if (error.response.status === 401 && error.config && originRequest._isFirstRetry) {
+                if (error.response.status === 403 && error.config && !originRequest._isFirstRetry) {
                     originRequest._isFirstRetry = true
                     try {
-                        const response = await axios.get<{ accessToken: string }>(`${DESTINATION_HOST}/refresh/`)
+                        const response = await axios.post<{ accessToken: string }>(`${DESTINATION_HOST}/api/v1/refresh`)
                         localStorage.setItem('accessToken', response.data.accessToken)
                         return axiosInstance.request(originRequest)
                     } catch (e) {
                         console.log('Не авторизован')
+                        await AuthController.logout()
                     }
                 }
                 throw error
@@ -59,3 +62,5 @@ export default class RequestController<T> {
         return axiosInstance
     }
 }
+
+export default RequestController

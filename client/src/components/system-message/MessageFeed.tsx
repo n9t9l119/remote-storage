@@ -2,8 +2,8 @@ import React from 'react';
 import {useTypedSelector} from "../../redux/hooks";
 import {MessagesStateType} from "../../redux/reducers/messagesReducer";
 
-import './MessageBlock.css'
-const MessageBlock = () => {
+import './MessageFeed.css'
+const MessageFeed = () => {
     const {messages} = useTypedSelector<MessagesStateType>(state => state.messages)
 
     return (
@@ -16,4 +16,4 @@ const MessageBlock = () => {
     );
 };
 
-export default MessageBlock;
+export default MessageFeed;

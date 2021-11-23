@@ -3,11 +3,13 @@ import {combineReducers} from "redux";
 import appSlice from "./reducers/appReducer";
 import authReducer from "./reducers/authReducer";
 import messagesReducer from "./reducers/messagesReducer";
+import fileSystemReducer from "./reducers/fileSystemReducer";
 
 const rootReducer = combineReducers({
     app: appSlice,
     auth: authReducer,
-    messages: messagesReducer
+    messages: messagesReducer,
+    fileSystem: fileSystemReducer
 })
 
 const store = configureStore({

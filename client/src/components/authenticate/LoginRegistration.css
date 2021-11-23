@@ -102,6 +102,10 @@
 .shape:nth-child(9) button:active {
   background-color: rgba(115, 115, 115, 0.24);
 }
+.shape:nth-child(9) button:disabled:hover {
+  cursor: default;
+  border: none;
+}
 
 @keyframes shape {
   0%, 100% {

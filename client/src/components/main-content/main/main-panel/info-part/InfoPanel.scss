@@ -1,0 +1,10 @@
+@import "../../../../../scss/mixins";
+
+
+.info-part {
+    @include glass(255, 255, 255, 10, 0.1);
+    border-radius: 5px;
+    width: 15%;
+    min-width: 150px;
+    height: 100%;
+}

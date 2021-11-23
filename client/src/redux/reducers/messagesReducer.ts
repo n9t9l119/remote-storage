@@ -7,10 +7,12 @@ export interface MessagesStateType {
 
 interface MessageType {
     message: string,
-    type: 'success' | 'error' | 'primary',
+    type: KindOfMessage,
     cssClass: 'visible' | 'vanishing',
     id: number,
 }
+
+type KindOfMessage = 'success' | 'error' | 'primary'
 
 const messagesSlice = createSlice({
     name: 'messages',
@@ -30,7 +32,7 @@ const messagesSlice = createSlice({
     }
 })
 
-const addMessage = (data: { message: string, type: 'success' | 'error' | 'primary' }) => async (dispatch: MainDispatchType) => {
+const addMessage = (data: { message: string, type: KindOfMessage}) => async (dispatch: MainDispatchType) => {
     const id = new Date().getTime();
     dispatch(messagesSlice.actions.addMessage({message: data.message, type: data.type, cssClass: 'visible', id}))
     await new Promise(res => {
