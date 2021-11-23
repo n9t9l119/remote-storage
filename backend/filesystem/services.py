@@ -2,28 +2,27 @@ import uuid
 from typing import Iterable, Union
 from urllib.parse import quote
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import transaction
 from django.db.models.fields import files
 from django.http import HttpResponse
 from rest_framework.response import Response
 
 from base_settings.models import User
-
 from filesystem.exceptions import JsonValidationError
-from filesystem.models import File, Folder, FolderRootOwner, ObjectType
+from filesystem.models import File, Folder, UserStorageInfo, ObjectType
 
 
 class FilesystemService:
-    def get(self, id: uuid.UUID, user: User) -> Response:
+    def get(self, id: uuid.UUID, user: AbstractBaseUser) -> Response:
         if id is None:
-            folder = FolderRootOwner.objects.get(user=user).root
+            folder = UserStorageInfo.objects.get(user=user).root
         else:
             folder = self._get_folder_by_id(id)
         return self._response(folder)
 
     @transaction.atomic
-    def create_folder(self, parent_id: uuid.UUID, name: str,
-                      user: User) -> Response:
+    def create_folder(self, parent_id: uuid.UUID, name: str, user: User) -> Response:
         self._assert_not_contains_name(parent_id, name)
 
         parent = self._get_folder_by_id(parent_id)
@@ -32,7 +31,7 @@ class FilesystemService:
             name=name,
             owner=user,
             parent=parent
-        ).save()
+        )
 
         return self._response(parent)
 
@@ -78,6 +77,9 @@ class FilesystemService:
     def upload_file(self, file_data: files.File, parent_id: uuid.UUID, user: User) -> Response:
         self._assert_not_contains_name(parent_id, file_data.name)
 
+        # fs_info = UserStorageInfo.objects.get(user=user)
+        # self._assert_not_exceed_available_space(fs_info, file_data)
+
         parent = self._get_folder_by_id(parent_id)
 
         file = File.objects.create(
@@ -86,11 +88,13 @@ class FilesystemService:
             parent=parent,
             owner=user
         )
-        file.save()
+        # fs_info.used_space += file_data.size
+        # file.save()
+        # fs_info.save(force_update=True)
 
         return self._response(parent)
 
-    def download_file(self, id: uuid.UUID, user: User) -> Response:
+    def download_file(self, id: uuid.UUID, user: AbstractBaseUser) -> Response:
         file = self._get_file_by_id(id)
         headers = {
             'Content-Type': "application/liquid",
@@ -115,13 +119,21 @@ class FilesystemService:
                 info["extension"] = child.extension
             objects.append(info)
 
-        return Response({"response": {
+        return Response({
             "id": parent.id,
             "name": parent.name if parent.parent_id is not None else None,
             "parent_id": parent.parent_id,
-            "owner": parent.owner.username,
+            "owner_name": parent.owner.username,
+            "owner_id": parent.owner.user_id,
             "objects": objects
-        }})
+        }, status=200)
+
+    @staticmethod
+    def _assert_not_exceed_available_space(fs_info: UserStorageInfo, file: files.File):
+        file_length = file.size
+        if fs_info.used_space + file_length > fs_info.available_space:
+            raise JsonValidationError("file size exceed max available space")
+
 
     @staticmethod
     def _assert_not_contains_name(parent_id: uuid.UUID, name: str):
@@ -131,7 +143,7 @@ class FilesystemService:
 
     @staticmethod
     def _assert_not_root_folder(id: uuid.UUID, action_name: str):
-        if FolderRootOwner.objects.filter(root_id=id).exists():
+        if UserStorageInfo.objects.filter(root_id=id).exists():
             raise JsonValidationError(f"You can't {action_name} root folder")
 
     @staticmethod

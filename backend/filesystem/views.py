@@ -1,3 +1,5 @@
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from base_settings.models import User
@@ -15,6 +17,8 @@ class GetViewSet(APIView):
 
 
 class RenameViewSet(APIView):
+    # permission_classes = [IsAuthenticated]
+
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_name = get_str_param(request, 'new_name')
@@ -23,6 +27,8 @@ class RenameViewSet(APIView):
 
 
 class MoveViewSet(APIView):
+    # permission_classes = [IsAuthenticated]
+
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_parent_id = get_uuid_param(request, 'new_parent_id')
@@ -31,6 +37,8 @@ class MoveViewSet(APIView):
 
 
 class DeleteViewSet(APIView):
+    # permission_classes = [IsAuthenticated]
+
     def post(self, request):
         id = get_uuid_param(request, 'id')
         user = User.objects.first()
@@ -38,6 +46,8 @@ class DeleteViewSet(APIView):
 
 
 class CreateFolderViewSet(APIView):
+    # permission_classes = [IsAuthenticated]
+
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
         name = get_str_param(request, 'name')
@@ -46,7 +56,8 @@ class CreateFolderViewSet(APIView):
 
 
 class UploadFileViewSet(APIView):
-    parser_classes = (CustomFileUploadParser,)
+    # permission_classes = [IsAuthenticated]
+    parser_classes = (CustomFileUploadParser, JSONParser)
 
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
@@ -58,5 +69,5 @@ class UploadFileViewSet(APIView):
 class DownloadFileViewSet(APIView):
     def get(self, request):
         id = get_uuid_param(request, 'id')
-        user = User.objects.first()
+        user = request.User
         return FilesystemService().download_file(id, user)

@@ -69,12 +69,14 @@ class File(models.Model):
         ]
 
 
-class FolderRootOwner(models.Model):
-    root = models.ForeignKey(Folder, on_delete=models.CASCADE)
+
+class UserStorageInfo(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    root = models.ForeignKey(Folder, on_delete=models.CASCADE)
+    used_space = models.PositiveBigIntegerField(default=0)
+    available_space = models.PositiveBigIntegerField(default=1024*1024*1024*5)
 
     class Meta:
-        db_table = 'folder_root_owner'
         constraints = [
             models.UniqueConstraint(
                 fields=[
