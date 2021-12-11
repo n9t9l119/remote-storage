@@ -3,7 +3,7 @@ import './MainPanel.css'
 import FileSystem from "./file-system/FileSystem";
 import InfoPart from "./info-part/InfoPart";
 import ReactDOM from "react-dom";
-import CreateDirectoryWindow from "../directory-name-window/CreateDirectoryWindow";
+import NameWindow from "../name-window/NameWindow";
 
 const MainPanel = () => {
     const root = document.getElementById('root')
@@ -14,7 +14,7 @@ const MainPanel = () => {
                 <FileSystem/>
                 <div className={'line'}></div>
                 <InfoPart/>
-                {root && ReactDOM.createPortal(<CreateDirectoryWindow/>, root)}
+                {root && ReactDOM.createPortal(<NameWindow/>, root)}
 
             </div>
         </article>

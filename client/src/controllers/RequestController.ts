@@ -52,7 +52,7 @@ class RequestController<T> {
                         return axiosInstance.request(originRequest)
                     } catch (e) {
                         console.log('Не авторизован')
-                        await AuthController.logout()
+                        await AuthController.logout(true)
                     }
                 }
                 throw error

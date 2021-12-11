@@ -6,13 +6,11 @@ export interface FSGetParams extends Params {
 }
 
 export interface FSGetResponse {
-    response: {
-        id: string,
-        name: string | null,
-        objects: FSObject[],
-        owner: string,
-        parent_id: string | null
-    }
+    id: string,
+    name: string | null,
+    objects: FSObject[],
+    owner: string,
+    parent_id: string | null
 }
 
 interface FSObject {

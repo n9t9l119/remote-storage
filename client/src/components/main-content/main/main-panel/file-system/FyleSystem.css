@@ -1,7 +1,7 @@
 .file-system {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 5px;
   width: 85%;
@@ -37,7 +37,7 @@
 .file-system .directory-trace ul li:nth-child(odd) button:hover {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
 }
 .file-system .directory-trace ul li:last-child {
@@ -51,8 +51,8 @@
 .file-system .directory-view > div {
   margin: 5px 10px;
   padding: 2px;
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,13 +61,25 @@
   cursor: pointer;
   user-select: none;
 }
-.file-system .directory-view > div div {
-  height: 90%;
+.file-system .directory-view > div.selected {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+.file-system .directory-view > div.selected:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+.file-system .directory-view > div img {
+  height: 85%;
 }
 .file-system .directory-view > div:hover {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
 }
 

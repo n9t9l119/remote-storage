@@ -1,13 +1,17 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import './AisdePanel.css'
-import {CreateFolderContext} from "../MainContent";
+import {useTypedDispatch} from "../../../../redux/hooks";
+import {showNameWindow} from "../../../../redux/reducers/nameWindowReducer";
+import {closeContextMenu, removeSelection,} from "../../../../redux/reducers/fileSystemInteractionReducer";
 
 const AsidePanel = () => {
 
-    const {visibleHandler} = useContext(CreateFolderContext)
+    const dispatch = useTypedDispatch()
 
-    function createNewFolderHandler(){
-        visibleHandler(true)
+    function createNewFolderHandler() {
+        dispatch(showNameWindow({actionType: 'create', elementType: 'folder'}))
+        dispatch(removeSelection())
+        dispatch(closeContextMenu())
     }
 
     return (

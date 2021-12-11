@@ -25,6 +25,7 @@ interface DirectoryObjects {
     name: string,
     owner_id: string,
     owner_name: string,
+    extension?: string,
     type: 'folder' | 'file'
 }
 

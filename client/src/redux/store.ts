@@ -4,12 +4,16 @@ import appSlice from "./reducers/appReducer";
 import authReducer from "./reducers/authReducer";
 import messagesReducer from "./reducers/messagesReducer";
 import fileSystemReducer from "./reducers/fileSystemReducer";
+import nameWindowReducer from "./reducers/nameWindowReducer";
+import fileSystemInteractionReducer from "./reducers/fileSystemInteractionReducer";
 
 const rootReducer = combineReducers({
     app: appSlice,
     auth: authReducer,
     messages: messagesReducer,
-    fileSystem: fileSystemReducer
+    fileSystem: fileSystemReducer,
+    nameWindow: nameWindowReducer,
+    fileSystemInteraction: fileSystemInteractionReducer
 })
 
 const store = configureStore({
