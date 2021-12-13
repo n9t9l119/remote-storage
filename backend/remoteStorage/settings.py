@@ -24,10 +24,10 @@ SECRET_KEY = 'django-insecure-(6@+e93r+9&8ffshdl%(xh$81emu)ish&@f6z@2q0ag3rb8cl-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost:3000', 'localhost:8000', 'localhost']
+ALLOWED_HOSTS = ['localhost:3000', 'localhost:8000', 'localhost',
+                 '127.0.0.1:3000', '127.0.0.1:8000', '127.0.0.1']
 
 CORS_ORIGIN_ALLOW_ALL = True
-
 
 AUTH_USER_MODEL = 'base_settings.User'
 
@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "corsheaders",
+    'corsheaders',
 
     'rest_framework',
 
@@ -139,7 +139,7 @@ STATIC_ROOT = BASE_DIR / 'static'
 
 STATICFILES_DIRS = [BASE_DIR / './client/build/static']
 
-MEDIA_URL = '/media/' 
+MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -151,3 +151,10 @@ STORAGE_ROOT = BASE_DIR / 'storage'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = (
+   "http://127.0.0.1:3000",
+   "http://localhost:3000",
+)

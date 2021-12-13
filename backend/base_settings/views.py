@@ -11,7 +11,15 @@ from remoteStorage.rest_api.jwt.generate_jwt import GenerateJwt
 def obtain_tokens(request):
     jwt_tokens = GenerateJwt().obtain_jwt(request.data['username'])
     response = Response(jwt_tokens)
-    response.set_cookie('refresh_token', jwt_tokens['refresh'])
+    response.set_cookie('refresh_token', jwt_tokens['refresh'], samesite='Lax')
+
+    return response
+
+
+def refresh_tokens(refresh_token):
+    jwt_tokens = GenerateJwt().refresh_token(refresh_token)
+    response = Response(jwt_tokens)
+    response.set_cookie('refresh_token', jwt_tokens['refresh'], samesite='Lax')
 
     return response
 
@@ -47,9 +55,13 @@ class RefreshToken(APIView):
     serializer_class = RefreshTokenSerializer
 
     def post(self, request):
-        self.serializer_class().validate(request.data)
+        refresh_token = request.COOKIES.get('refresh_token')
 
-        return Response(GenerateJwt().refresh_token(request.data['token']))
+        if refresh_token is None:
+            self.serializer_class().validate(request.data)
+            refresh_token = request.data['token']
+
+        return refresh_tokens(refresh_token)
 
 
 class TestAuth(APIView):

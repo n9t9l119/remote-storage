@@ -3,6 +3,8 @@ import axios, {AxiosResponse, AxiosInstance, AxiosError} from "axios";
 import {DESTINATION_HOST} from "../utils/consts";
 import AuthController from "./AuthController";
 
+axios.defaults.withCredentials = true
+
 interface ErrorType {
     error: string
 }
@@ -25,7 +27,7 @@ class RequestController<T> {
         if (this.method === 'post') {
             return RequestController.axios.post<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
         } else {
-            return RequestController.axios.get<T>(this.command.getRoute(), this.command.getParameters()).catch(reason => reason)
+            return RequestController.axios.get<T>(this.command.getRoute(), this.command.getParameters() ).catch(reason => reason)
         }
     }
 
