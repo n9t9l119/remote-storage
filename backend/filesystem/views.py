@@ -69,5 +69,5 @@ class UploadFileViewSet(APIView):
 class DownloadFileViewSet(APIView):
     def get(self, request):
         id = get_uuid_param(request, 'id')
-        user = request.User
+        user = request.user
         return FilesystemService().download_file(id, user)

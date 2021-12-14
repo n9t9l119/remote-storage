@@ -40,9 +40,9 @@ export const LoginRegistrationPanel = () => {
     async function submitForm() {
         dispatch(appStartWaiting())
         if (panelMode === 'registration') {
-            await AuthController.register({username, email, password, password2: password})
+            await AuthController.register({username, email, password})
         } else if (panelMode === 'login') {
-            await AuthController.login({username: email, password})
+            await AuthController.login({username, password})
         }
         dispatch(appEndWaiting())
     }
@@ -71,10 +71,10 @@ export const LoginRegistrationPanel = () => {
                     {
                         panelMode === 'login' &&
                         <LoginBlock
-                            emailHandler={emailHandler}
+                            usernameHandler={usernameHandler}
                             passwordHandler={passwordHandler}
                             rememberFlagHandler={rememberFlagHandler}
-                            email={email}
+                            username={username}
                             password={password}
                             rememberFlag={rememberFlag}/>
                     }

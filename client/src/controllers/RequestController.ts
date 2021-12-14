@@ -3,8 +3,6 @@ import axios, {AxiosResponse, AxiosInstance, AxiosError} from "axios";
 import {DESTINATION_HOST} from "../utils/consts";
 import AuthController from "./AuthController";
 
-axios.defaults.withCredentials = true
-
 interface ErrorType {
     error: string
 }
@@ -34,6 +32,7 @@ class RequestController<T> {
     private axiosInstanceCreate(): AxiosInstance {
         const axiosInstance = axios.create({
             baseURL: DESTINATION_HOST + '/api/v1',
+            withCredentials: true
         })
 
         axiosInstance.interceptors.request.use((config) => {
