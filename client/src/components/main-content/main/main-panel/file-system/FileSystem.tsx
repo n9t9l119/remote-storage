@@ -108,13 +108,20 @@ const FileSystem = () => {
                 </div>}
                 {fileSystem.currentDirectory.objects?.map(elem => (
                     elem.type === 'folder' ?
-                        <FolderElement selectedElementId={fsInteraction.selectedElement.elementId} elem={elem}/> :
-                        <FileElement selectedElementId={fsInteraction.selectedElement.elementId} elem={elem}/>
+                        <FolderElement
+                            key={elem.id}
+                            selectedElementId={fsInteraction.selectedElement.elementId}
+                            elem={elem}/> :
+                        <FileElement
+                            key={elem.id}
+                            selectedElementId={fsInteraction.selectedElement.elementId}
+                            elem={elem}/>
                 ))}
             </div>
-            <ContextMenuPanel visible={fsInteraction.contextMenu.visible}
-                              type={fsInteraction.contextMenu.menuType}
-                              position={contextMenuPosition}/>
+            <ContextMenuPanel
+                visible={fsInteraction.contextMenu.visible}
+                type={fsInteraction.contextMenu.menuType}
+                position={contextMenuPosition}/>
         </div>
     );
 };

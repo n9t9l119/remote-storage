@@ -2,11 +2,12 @@ import RequestController from "./RequestController";
 import FileSystemGet, {FSGetResponse} from "../requests/FileSystemGet";
 import store from "../redux/store";
 import {updateDirectory} from "../redux/reducers/fileSystemReducer";
-import FileSystemCreateFolder from "../requests/FileSystemCreateFolder";
+import FileSystemCreateFolder, {FSCreateFolderParams} from "../requests/FileSystemCreateFolder";
 import MessageController from "./MessageController";
-import FileSystemRename from "../requests/FileSystemRename";
-import FileSystemDelete from "../requests/FileSystemDelete";
-import FileSystemMove from "../requests/FileSystemMove";
+import FileSystemRename, {FSRenameParams} from "../requests/FileSystemRename";
+import FileSystemDelete, {FSDeleteParams} from "../requests/FileSystemDelete";
+import FileSystemMove, {FSMoveParams} from "../requests/FileSystemMove";
+import FileSystemUploadFile, {FSFileUploadParams} from "../requests/FileSystemUploadFile";
 
 export default class FileSystemController {
     private static currentDirectoryId: string | undefined = undefined
@@ -22,7 +23,7 @@ export default class FileSystemController {
         }
     }
 
-    static async createDirectory(params: { name: string, parent_id: string }) {
+    static async createDirectory(params: FSCreateFolderParams) {
         if (!params.name.trim()) {
             MessageController.error('Задайте название')
             return
@@ -36,7 +37,7 @@ export default class FileSystemController {
         }
     }
 
-    static async renameElement(params: { id: string, new_name: string }) {
+    static async renameElement(params: FSRenameParams) {
         if (!params.new_name.trim()) {
             MessageController.error('Задайте название')
             return
@@ -45,7 +46,7 @@ export default class FileSystemController {
         const result = await command.execute()
     }
 
-    static async deleteElement(params: { id: string }) {
+    static async deleteElement(params: FSDeleteParams) {
         const command = new RequestController(new FileSystemDelete(params))
         const result = await command.execute()
     }
@@ -54,7 +55,7 @@ export default class FileSystemController {
         await FileSystemController.getDirectory(FileSystemController.currentDirectoryId)
     }
 
-    static async moveElement(params: { id: string, new_parent_id: string }) {
+    static async moveElement(params: FSMoveParams) {
         const command = new RequestController(new FileSystemMove(params))
         const result = await command.execute()
 
@@ -62,5 +63,10 @@ export default class FileSystemController {
         } else if (result.response && result.response.status !== 500) {
             MessageController.error(result.response.data.error)
         }
+    }
+
+    static async uploadFile(params: FSFileUploadParams, data: ArrayBuffer) {
+        const command = new RequestController(new FileSystemUploadFile(params, data))
+        const result = await command.execute()
     }
 }
