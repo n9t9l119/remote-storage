@@ -58,8 +58,7 @@ class RefreshToken(APIView):
         refresh_token = request.COOKIES.get('refresh_token')
 
         if refresh_token is None:
-            self.serializer_class().validate(request.data)
-            refresh_token = request.data['token']
+            self.serializer_class().validate(refresh_token)
 
         return refresh_tokens(refresh_token)
 

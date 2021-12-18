@@ -5,7 +5,6 @@ export interface RegisterParams extends Params {
     username: string,
     email: string,
     password: string,
-    password2: string,
 }
 
 export interface RegisterResponse {

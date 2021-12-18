@@ -55,8 +55,9 @@ class GenerateJwt:
                 self.config['REFRESH_TOKEN_SECRET_KEY'],
                 algorithms=['HS256'],
             )
-        except:
-            raise Exception('token is dead')
+        except Exception as e:
+            #'token is dead'
+            raise Exception(str(e))
 
         user = User.objects.get(user_id=payload['uid'])
 
