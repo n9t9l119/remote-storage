@@ -1,13 +1,9 @@
-FROM python:3.8-slim
-
-ARG POSTGRES_HOST
-ENV POSTGRES_HOST $POSTGRES_HOST
-RUN apt update
+# syntax=docker/dockerfile:1
+FROM python:3
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-WORKDIR /app
+WORKDIR /code
+COPY ./backend/requirements.txt /code/
+RUN pip install -r requirements.txt
+COPY ./backend /code/
 
-COPY . .
-
-RUN pip install --no-cache-dir -r requirements.txt && \
-    python manage.py makemigrations && \
-    python manage.py migrate
