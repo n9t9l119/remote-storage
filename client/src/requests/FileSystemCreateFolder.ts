@@ -9,7 +9,7 @@ export interface FSCreateFolderParams extends Params{
 export default class FileSystemCreateFolder extends BaseRequest {
     method: MethodType = 'post'
     route: string = 'filesystem/create_folder'
-    quarryParams: boolean = true
+    queryParams: boolean = true
     parameters: FSCreateFolderParams
 
     constructor(parameters: FSCreateFolderParams) {

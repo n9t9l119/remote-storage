@@ -82,7 +82,8 @@ export const LoginRegistrationPanel = () => {
                             disabled={appState.waiting}>{panelMode === "login" ? "login" : "sign up"}</button>
                 </div>
                 <div className="shape glass">
-                    <button onClick={togglePanelMode} disabled={appState.waiting}>{panelMode === "registration" ? "login" : "sing up"}</button>
+                    <button onClick={togglePanelMode}
+                            disabled={appState.waiting}>{panelMode === "registration" ? "login" : "sing up"}</button>
                 </div>
             </div>
 

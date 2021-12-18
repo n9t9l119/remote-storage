@@ -12,46 +12,46 @@ from filesystem.services import FilesystemService
 class GetViewSet(APIView):
     def post(self, request):
         id = get_uuid_param(request, 'id', True)
-        user = User.objects.first()  # TODO: Получать юзера в запросе
+        user = request.user
         return FilesystemService().get(id, user)
 
 
 class RenameViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_name = get_str_param(request, 'new_name')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().rename(id, new_name, user)
 
 
 class MoveViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_parent_id = get_uuid_param(request, 'new_parent_id')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().move(id, new_parent_id, user)
 
 
 class DeleteViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().delete(id, user)
 
 
 class CreateFolderViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
         name = get_str_param(request, 'name')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().create_folder(parent_id, name, user)
 
 
@@ -63,6 +63,7 @@ class UploadFileViewSet(APIView):
         parent_id = get_uuid_param(request, 'parent_id')
         file_data = get_file_param(request)
         user = User.objects.first()
+        # user = request.user
         return FilesystemService().upload_file(file_data, parent_id, user)
 
 

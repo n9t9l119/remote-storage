@@ -10,7 +10,7 @@ export default class FileSystemMove extends BaseRequest {
     method: MethodType = 'post'
     route: string = 'filesystem/move'
     parameters: FSMoveParams
-    quarryParams: boolean = true
+    queryParams: boolean = true
 
     constructor(parameters: FSMoveParams) {
         super();
