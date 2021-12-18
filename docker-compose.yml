@@ -1,17 +1,38 @@
 version: "3.8"
 services:
-    backend:
-       image: "django-backend"
-       build: ./backend
-       command: python ./backend/manage.py runserver 0.0.0.0:8000
-       ports:
-         - "8000:8000"
-       volumes:
-            - ./:/app
-    frontend:
-        image: "react-frontend"
-        build: ./client
-        ports: 
-            - "3000:3000"
-        volumes:
-            - ./client:/app/client
+  backend:
+    image: "django-backend"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    build:
+      context: ./backend
+    environment:
+      POSTGRES_HOST: postgres
+    command: python ./backend/manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+
+
+  frontend:
+    image: "react-frontend"
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app/client
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_USER: "user"
+      POSTGRES_DB: "dna"
+      POSTGRES_PASSWORD: "123456"
+    ports:
+      - "5432:5432"
+    restart: always
