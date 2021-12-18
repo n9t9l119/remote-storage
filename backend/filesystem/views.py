@@ -56,7 +56,7 @@ class CreateFolderViewSet(APIView):
 
 
 class UploadFileViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = (CustomFileUploadParser, JSONParser)
 
     def post(self, request):

@@ -146,6 +146,9 @@ class FilesystemService:
     @staticmethod
     def _response(parent: Folder) -> Response:
         children = FilesystemService._get_children(parent.id)
+        root = parent.root if parent.root is not None else parent
+        fs_info = UserStorageInfo.objects.get(root=root)
+
         objects = []
         for child in sorted(children, key=lambda fs_obj: fs_obj.name):
             info = {
@@ -166,6 +169,8 @@ class FilesystemService:
             "parent_id": parent.parent_id,
             "owner_name": parent.owner.username,
             "owner_id": parent.owner.user_id,
+            "used_space": fs_info.used_space,
+            "available_space": fs_info.available_space,
             "objects": objects
         }, status=200)
 
