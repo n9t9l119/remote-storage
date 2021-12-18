@@ -15,16 +15,14 @@ from filesystem.fields import UniqueNameFileField
 class Folder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, related_name='parent_folder')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
+    root = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, related_name='root_folder')
 
     @property
     def type(self):
         return ObjectType.FOLDER
-
-    def delete(self, using=None, keep_parents=False):
-        super().delete(using, keep_parents)
 
     class Meta:
         constraints = [
@@ -46,9 +44,10 @@ class File(models.Model):
             base_url=settings.STORAGE_URL),
         upload_to='%Y/%m/%d/',
         blank=False)
-    parent = models.ForeignKey(Folder, on_delete=models.CASCADE)
+    parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name='file_parent_folder')
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
+    root = models.ForeignKey(Folder, on_delete=models.DO_NOTHING, related_name='file_root_folder')
 
     @property
     def type(self):
@@ -71,8 +70,8 @@ class File(models.Model):
 
 
 class UserStorageInfo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    root = models.ForeignKey(Folder, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
+    root = models.OneToOneField(Folder, on_delete=models.CASCADE)
     used_space = models.PositiveBigIntegerField(default=0)
     available_space = models.PositiveBigIntegerField(default=1024*1024*1024*5)
 
@@ -85,6 +84,18 @@ class UserStorageInfo(models.Model):
                 name='unique_root')
         ]
 
+class SharedFilesystems(models.Model):
+    shared_root = models.ForeignKey(Folder, on_delete=models.DO_NOTHING)
+    allowed_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'shared_root',
+                    'allowed_user'],
+                name='unique_share')
+        ]
 
 class ObjectType(Enum):
     FILE = (1, File)

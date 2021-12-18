@@ -1,5 +1,5 @@
 import uuid
-from typing import Iterable, Union
+from typing import Iterable, Union, Optional
 from urllib.parse import quote
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from base_settings.models import User
 from filesystem.exceptions import JsonValidationError
-from filesystem.models import File, Folder, UserStorageInfo, ObjectType
+from filesystem.models import File, Folder, UserStorageInfo, ObjectType, SharedFilesystems
 
 
 class FilesystemService:
@@ -19,18 +19,25 @@ class FilesystemService:
             folder = UserStorageInfo.objects.get(user=user).root
         else:
             folder = self._get_folder_by_id(id)
+
+        self._assert_have_access(user, folder)
+
         return self._response(folder)
 
     @transaction.atomic
     def create_folder(self, parent_id: uuid.UUID, name: str, user: User) -> Response:
         self._assert_not_contains_name(parent_id, name)
 
+        fs_info = UserStorageInfo.objects.get(user=user)
         parent = self._get_folder_by_id(parent_id)
+
+        self. _assert_have_access(user, parent)
 
         Folder.objects.create(
             name=name,
             owner=user,
-            parent=parent
+            parent=parent,
+            root=fs_info.root
         )
 
         return self._response(parent)
@@ -40,6 +47,9 @@ class FilesystemService:
         self._assert_not_root_folder(id, "delete")
 
         fs_obj = self._get_fs_object_by_id(id)
+
+        self._assert_have_access(user, fs_obj)
+
         parent = fs_obj.parent
         fs_obj.delete()
 
@@ -51,6 +61,7 @@ class FilesystemService:
 
         fs_obj = self._get_fs_object_by_id(id)
 
+        self._assert_have_access(user, fs_obj)
         self._assert_not_contains_name(fs_obj.parent_id, new_name)
 
         fs_obj.name = new_name
@@ -65,6 +76,7 @@ class FilesystemService:
 
         fs_obj = self._get_fs_object_by_id(id)
 
+        self._assert_have_access(user, fs_obj)
         self._assert_not_contains_name(new_parent_id, fs_obj.name)
 
         old_parent = fs_obj.parent
@@ -77,30 +89,59 @@ class FilesystemService:
     def upload_file(self, file_data: files.File, parent_id: uuid.UUID, user: User) -> Response:
         self._assert_not_contains_name(parent_id, file_data.name)
 
-        # fs_info = UserStorageInfo.objects.get(user=user)
-        # self._assert_not_exceed_available_space(fs_info, file_data)
-
         parent = self._get_folder_by_id(parent_id)
+        self._assert_have_access(user, parent)
 
-        file = File.objects.create(
+        fs_info = UserStorageInfo.objects.get(user=user)
+
+        File.objects.create(
             data=file_data,
             name=file_data.name,
             parent=parent,
+            root=fs_info.root,
             owner=user
         )
-        # fs_info.used_space += file_data.size
-        # file.save()
-        # fs_info.save(force_update=True)
 
         return self._response(parent)
 
     def download_file(self, id: uuid.UUID, user: AbstractBaseUser) -> Response:
         file = self._get_file_by_id(id)
+
+        self._assert_have_access(user, file)
+
         headers = {
             'Content-Type': "application/liquid",
             'Content-Disposition': "attachment; filename*=utf-8''{}".format(quote(file.name))
         }
         return HttpResponse(file.data, headers=headers)
+
+    @transaction.atomic
+    def share_filesystem(self, guest_name : Optional[str], owner : User):
+        fs_info = UserStorageInfo.objects.get(user=owner)
+        guest = FilesystemService._get_user_by_name(guest_name)
+
+        SharedFilesystems.objects.create(
+            shared_root = fs_info.root,
+            allowed_user = guest
+        )
+
+        return Response(status=200)
+
+    @transaction.atomic
+    def stop_share_filesystem(self, guest_name : str, owner : User):
+        fs_info = UserStorageInfo.objects.get(user=owner)
+        guest = FilesystemService._get_user_by_name(guest_name)
+
+        results = SharedFilesystems.objects.filter(
+            shared_root = fs_info.root,
+            allowed_user = guest
+        )
+
+        if not results:
+            raise JsonValidationError(f"No shared filesystems to user '{guest_name}'")
+
+        results.delete()
+        return Response(status=200)
 
     @staticmethod
     def _response(parent: Folder) -> Response:
@@ -129,11 +170,27 @@ class FilesystemService:
         }, status=200)
 
     @staticmethod
-    def _assert_not_exceed_available_space(fs_info: UserStorageInfo, file: files.File):
-        file_length = file.size
-        if fs_info.used_space + file_length > fs_info.available_space:
-            raise JsonValidationError("file size exceed max available space")
+    def _assert_have_access(user : Union[AbstractBaseUser, User], fs_obj : Union[File, Folder]):
+        root = fs_obj.root if fs_obj.root is not None else fs_obj
 
+        is_registered_user = isinstance(user, User)
+        if is_registered_user:
+            fs_info = UserStorageInfo.objects.get(user = user)
+            if fs_info.root == root:
+                return
+
+        if not SharedFilesystems.objects.filter(shared_root = root, allowed_user = user if is_registered_user else None).exists():
+            raise JsonValidationError(f"You have not access to file or folder '{fs_obj.name}'")
+
+    @staticmethod
+    def _get_user_by_name(username : str):
+        if username is None:
+            return None
+
+        results = User.objects.filter(username = username)
+        if results:
+            return results.first()
+        raise JsonValidationError(f"User with username '{username}' does not exists")
 
     @staticmethod
     def _assert_not_contains_name(parent_id: uuid.UUID, name: str):

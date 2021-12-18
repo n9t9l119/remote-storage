@@ -12,7 +12,7 @@ from filesystem.services import FilesystemService
 class GetViewSet(APIView):
     def post(self, request):
         id = get_uuid_param(request, 'id', True)
-        user = User.objects.first()  # TODO: Получать юзера в запросе
+        user = request.user
         return FilesystemService().get(id, user)
 
 
@@ -22,7 +22,7 @@ class RenameViewSet(APIView):
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_name = get_str_param(request, 'new_name')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().rename(id, new_name, user)
 
 
@@ -32,7 +32,7 @@ class MoveViewSet(APIView):
     def post(self, request):
         id = get_uuid_param(request, 'id')
         new_parent_id = get_uuid_param(request, 'new_parent_id')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().move(id, new_parent_id, user)
 
 
@@ -41,7 +41,7 @@ class DeleteViewSet(APIView):
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().delete(id, user)
 
 
@@ -51,7 +51,7 @@ class CreateFolderViewSet(APIView):
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
         name = get_str_param(request, 'name')
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().create_folder(parent_id, name, user)
 
 
@@ -62,12 +62,26 @@ class UploadFileViewSet(APIView):
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
         file_data = get_file_param(request)
-        user = User.objects.first()
+        user = request.user
         return FilesystemService().upload_file(file_data, parent_id, user)
 
 
 class DownloadFileViewSet(APIView):
     def get(self, request):
         id = get_uuid_param(request, 'id')
-        user = request.User
+        user = request.user
         return FilesystemService().download_file(id, user)
+
+
+class ShareViewSet(APIView):
+    def post(self, request):
+        username = get_uuid_param(request, 'username', True)
+        user = request.user
+        return FilesystemService().share_filesystem(username, user)
+
+
+class StopShareViewSet(APIView):
+    def post(self, request):
+        username = get_uuid_param(request, 'username', True)
+        user = request.user
+        return FilesystemService().stop_share_filesystem(username, user)

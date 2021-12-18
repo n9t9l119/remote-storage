@@ -1,8 +1,10 @@
 import uuid
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.files import File
 from rest_framework.request import Request
 
+from base_settings.models import User
 from filesystem.exceptions import JsonParseError
 
 
@@ -30,3 +32,7 @@ def get_file_param(request: Request) -> File:
     if file is None:
         raise JsonParseError(f"There is no file data in body")
     return file
+
+def assert_is_registered_user(user : AbstractBaseUser):
+    if user is None or not isinstance(user, User):
+        raise JsonParseError("Cannot identify user for this operation")
