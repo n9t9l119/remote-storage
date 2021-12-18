@@ -62,8 +62,7 @@ class UploadFileViewSet(APIView):
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
         file_data = get_file_param(request)
-        user = User.objects.first()
-        # user = request.user
+        user = request.user
         return FilesystemService().upload_file(file_data, parent_id, user)
 
 
@@ -72,3 +71,17 @@ class DownloadFileViewSet(APIView):
         id = get_uuid_param(request, 'id')
         user = request.user
         return FilesystemService().download_file(id, user)
+
+
+class ShareViewSet(APIView):
+    def post(self, request):
+        username = get_uuid_param(request, 'username', True)
+        user = request.user
+        return FilesystemService().share_filesystem(username, user)
+
+
+class StopShareViewSet(APIView):
+    def post(self, request):
+        username = get_uuid_param(request, 'username', True)
+        user = request.user
+        return FilesystemService().stop_share_filesystem(username, user)
