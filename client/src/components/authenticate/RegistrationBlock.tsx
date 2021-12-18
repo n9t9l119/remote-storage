@@ -19,7 +19,7 @@ export const RegistrationBlock = ({usernameHandler, emailHandler, passwordHandle
             </div>
             <div className="input-field">
                 <input type="text" name="" id="email" required={true} value={email} onChange={(e) => emailHandler(e.target.value)}/>
-                <label htmlFor="email">Login</label>
+                <label htmlFor="email">Email</label>
             </div>
             <div className="input-field">
                 <input type="password" name="" id="password" required={true} value={password} onChange={(e) => passwordHandler(e.target.value)}/>

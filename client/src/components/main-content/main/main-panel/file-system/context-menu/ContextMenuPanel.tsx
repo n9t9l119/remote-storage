@@ -9,6 +9,7 @@ import {
 } from "../../../../../../redux/reducers/fileSystemInteractionReducer";
 import FileSystemController from "../../../../../../controllers/FileSystemController";
 import {FileSystemStateType} from "../../../../../../redux/reducers/fileSystemReducer";
+import {DESTINATION_HOST} from "../../../../../../utils/consts";
 
 interface Params {
     visible: boolean
@@ -61,8 +62,40 @@ const ContextMenuPanel = ({visible, type, position}: Params) => {
         dispatch(showNameWindow({actionType: 'create', elementType: 'folder'}))
     }
 
-    function uploadFileHandler() {
+    function uploadFileHandler(): any {
+        let input = document.createElement('input')
+        input.type = 'file'
+        input.hidden = true
+        document.body.appendChild(input)
+        let file: File | null
 
+        input.click()
+
+        input.onchange = function (e: Event) {
+            let fileReader = new FileReader()
+            let fileList = (e.target as HTMLInputElement).files
+
+            fileReader.onload = async () => {
+                if (file?.name && fileReader.result && fileReader.result instanceof ArrayBuffer) {
+                    await FileSystemController.uploadFile({
+                        filename: file.name,
+                        parent_id: currentDirectoryId
+                    }, fileReader.result)
+                    await FileSystemController.updateCurrentDirectory()
+                }
+
+                input.remove()
+            }
+
+            if (fileList) {
+                fileReader.readAsArrayBuffer(fileList[0])
+                file = fileList[0]
+            }
+        }
+    }
+
+    function downloadHandler(): any {
+        window.open(`${DESTINATION_HOST}/api/v1/filesystem/download_file?id=${fsInteraction.selectedElement.elementId}`, '_self')
     }
 
     function clickHandler(e: any) {
@@ -92,6 +125,10 @@ const ContextMenuPanel = ({visible, type, position}: Params) => {
                      onClick={putElementHandler}>
                     <span>Вставить</span>
                 </div>
+                <div className={'context-menu-item'} hidden={fsInteraction.selectedElement.elementType === 'folder'}
+                     onClick={downloadHandler}>
+                    <span>Скачать файл</span>
+                </div>
                 <div className={'context-menu-item'} onClick={deleteHandler}>
                     <span>Удалить</span>
                 </div>
@@ -104,7 +141,7 @@ const ContextMenuPanel = ({visible, type, position}: Params) => {
                 <div className={'context-menu-item'} onClick={createFolderHandler}>
                     <span>Создать папку</span>
                 </div>
-                <div className={'context-menu-item'}>
+                <div className={'context-menu-item'} onClick={uploadFileHandler}>
                     <span>Загрузить файл</span>
                 </div>
             </div>

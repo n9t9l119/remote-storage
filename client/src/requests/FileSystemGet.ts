@@ -25,7 +25,7 @@ interface FSObject {
 export default class FileSystemGet extends BaseRequest {
     method: MethodType = 'post'
     route: string = '/filesystem/get'
-    quarryParams: boolean = true
+    queryParams: boolean = true
     parameters: FSGetParams | undefined
 
     constructor(parameters?: FSGetParams) {

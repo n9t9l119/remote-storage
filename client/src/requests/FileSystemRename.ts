@@ -10,7 +10,7 @@ export default class FileSystemRename extends BaseRequest {
     method: MethodType = 'post'
     route: string = 'filesystem/rename'
     parameters: FSRenameParams
-    quarryParams: boolean = true
+    queryParams: boolean = true
 
     constructor(parameters: FSRenameParams) {
         super();

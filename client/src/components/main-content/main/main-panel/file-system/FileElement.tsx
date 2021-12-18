@@ -21,6 +21,10 @@ const FileElement = ({selectedElementId, elem}: Props) => {
         case '.txt':
             imageType = 'icons/txt.png'
             break
+        case '.doc':
+        case '.docx':
+            imageType = 'icons/doc.png'
+            break
         default:
             imageType = 'icons/file.png'
     }

@@ -1,5 +1,4 @@
 import jwt
-from rest_framework.authentication import CSRFCheck
 
 from base_settings.models import User
 from rest_framework import authentication, exceptions
@@ -11,12 +10,12 @@ class JwtAuthentication(authentication.BaseAuthentication):
     PREFIX = 'JWT'
 
     def authenticate(self, request):
-        authorization_heaader = request.headers.get('Authorization')
+        authorization_header = request.headers.get('Authorization')
 
-        if not authorization_heaader:
+        if not authorization_header:
             return None, ''
         try:
-            header_prefix, access_token = authorization_heaader.split(' ')
+            header_prefix, access_token = authorization_header.split(' ')
 
             if header_prefix != self.PREFIX:
                 raise exceptions.AuthenticationFailed('Incorrect header prefix')
@@ -34,14 +33,7 @@ class JwtAuthentication(authentication.BaseAuthentication):
         except jwt.ExpiredSignatureError:
             user = None
 
-        finally:
-            return user, access_token
+        return user, access_token
 
-    def enforce_csrf(self, request):
-
-        check = CSRFCheck()
-        check.process_request(request)
-        reason = check.process_view(request, None, (), {})
-
-        if reason:
-            raise exceptions.PermissionDenied(f'CSRF Failed: {reason}')
+    def authenticate_header(self, request):
+        return '401 Unauthenticated'

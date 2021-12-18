@@ -17,7 +17,7 @@ class GetViewSet(APIView):
 
 
 class RenameViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
@@ -27,7 +27,7 @@ class RenameViewSet(APIView):
 
 
 class MoveViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
@@ -37,7 +37,7 @@ class MoveViewSet(APIView):
 
 
 class DeleteViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         id = get_uuid_param(request, 'id')
@@ -46,7 +46,7 @@ class DeleteViewSet(APIView):
 
 
 class CreateFolderViewSet(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         parent_id = get_uuid_param(request, 'parent_id')
