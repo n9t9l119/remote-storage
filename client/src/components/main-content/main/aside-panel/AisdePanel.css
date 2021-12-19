@@ -1,27 +1,30 @@
-aside {
+.aside-panel {
   width: 250px;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-aside h1 {
+.aside-panel h1 {
   align-self: start;
 }
-aside button {
+.aside-panel .spacer {
+  flex-grow: 1;
+}
+.aside-panel button {
   margin-top: 10px;
   width: 70%;
-  height: 25px;
+  min-height: 25px;
   border-radius: 6px;
   background-color: rgba(255, 255, 255, 0.24);
   border: none;
   outline: none;
   cursor: pointer;
 }
-aside button:hover {
+.aside-panel button:hover {
   border: 1px solid rgba(208, 208, 208, 0.75);
 }
-aside button:active {
+.aside-panel button:active {
   background-color: rgba(115, 115, 115, 0.24);
 }
 

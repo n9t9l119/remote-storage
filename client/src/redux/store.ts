@@ -6,6 +6,7 @@ import messagesReducer from "./reducers/messagesReducer";
 import fileSystemReducer from "./reducers/fileSystemReducer";
 import nameWindowReducer from "./reducers/nameWindowReducer";
 import fileSystemInteractionReducer from "./reducers/fileSystemInteractionReducer";
+import spaceInfoReducer from "./reducers/spaceInfoReducer";
 
 const rootReducer = combineReducers({
     app: appSlice,
@@ -13,7 +14,8 @@ const rootReducer = combineReducers({
     messages: messagesReducer,
     fileSystem: fileSystemReducer,
     nameWindow: nameWindowReducer,
-    fileSystemInteraction: fileSystemInteractionReducer
+    fileSystemInteraction: fileSystemInteractionReducer,
+    spaceInfo: spaceInfoReducer
 })
 
 const store = configureStore({

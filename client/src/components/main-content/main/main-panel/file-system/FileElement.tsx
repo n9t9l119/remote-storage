@@ -1,5 +1,6 @@
 import React from 'react';
 import FileSystemController from "../../../../../controllers/FileSystemController";
+import {useFileSystem} from "../../../../../hooks/filesystem.hook";
 
 interface Props {
     selectedElementId: string | undefined,
@@ -15,6 +16,8 @@ interface Props {
 }
 
 const FileElement = ({selectedElementId, elem}: Props) => {
+    const {downloadHandler} = useFileSystem()
+
     let imageType: string;
 
     switch (elem.extension) {
@@ -34,7 +37,7 @@ const FileElement = ({selectedElementId, elem}: Props) => {
             className={`fs-element ${selectedElementId === elem.id ? 'selected' : ''}`}
             data-elementid={elem.id}
             data-elementtype={elem.type}
-            onDoubleClick={() => FileSystemController.getDirectory(elem.id)}
+            onDoubleClick={downloadHandler}
             key={elem.id}>
             <img src={process.env.PUBLIC_URL + imageType} alt="folder"/>
             <span>{elem.name}</span>

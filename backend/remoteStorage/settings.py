@@ -27,7 +27,11 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost:3000', 'localhost:8000', 'localhost',
                  '127.0.0.1:3000', '127.0.0.1:8000', '127.0.0.1']
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_EXPOSE_HEADERS = [
+    'content-disposition'
+]
 
 AUTH_USER_MODEL = 'base_settings.User'
 
@@ -155,6 +159,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
-   "http://127.0.0.1:3000",
-   "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
 )

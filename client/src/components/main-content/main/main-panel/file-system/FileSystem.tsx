@@ -12,10 +12,12 @@ import {
 } from "../../../../../redux/reducers/fileSystemInteractionReducer";
 import FolderElement from "./FolderElement";
 import FileElement from "./FileElement";
+import {setAvailableSpace} from "../../../../../redux/reducers/spaceInfoReducer";
 
 const FileSystem = () => {
+    const dispatch = useTypedDispatch();
     useEffect(() => {
-        FileSystemController.getDirectory().then(res => res)
+        FileSystemController.getDirectory().then(res => res )
     }, [])
 
     const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number, y: number, offset: { x: 1 | 0, y: 1 | 0 } }>({
@@ -25,7 +27,6 @@ const FileSystem = () => {
     })
     const fileSystemRef = useRef<HTMLDivElement>(null)
 
-    const dispatch = useTypedDispatch();
 
     const fileSystem = useTypedSelector<FileSystemStateType>(state => state.fileSystem)
     const fsInteraction = useTypedSelector<FSInteractionState>(state => state.fileSystemInteraction)

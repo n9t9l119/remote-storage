@@ -1,0 +1,29 @@
+.space-info {
+  width: 95%;
+  margin-top: 20px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.space-info .space-info__progress-bar {
+  width: inherit;
+  height: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  background-color: rgba(108, 108, 108, 0.4);
+  outline: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.space-info .space-info__progress-bar .space-info__indicator {
+  background-color: #3f36ff;
+  position: absolute;
+  height: 100%;
+}
+.space-info .space-info__text {
+  font-size: 13px;
+}
+
+/*# sourceMappingURL=SpaceInfo.css.map */

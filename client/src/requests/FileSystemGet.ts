@@ -9,8 +9,11 @@ export interface FSGetResponse {
     id: string,
     name: string | null,
     objects: FSObject[],
-    owner: string,
-    parent_id: string | null
+    owner_name: string,
+    owner_id: string,
+    parent_id: string | null,
+    available_space: number,
+    used_space: number
 }
 
 interface FSObject {
