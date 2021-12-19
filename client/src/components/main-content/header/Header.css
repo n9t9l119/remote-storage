@@ -9,5 +9,23 @@ header {
   align-items: center;
   justify-content: space-between;
 }
+.header button {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin-right: 10px;
+  padding: 5px;
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+}
+.header button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.header button img {
+  width: 20px;
+  height: 20px;
+}
 
 /*# sourceMappingURL=Header.css.map */

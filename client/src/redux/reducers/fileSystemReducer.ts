@@ -15,8 +15,9 @@ interface Directory {
     id: string,
     name: string | null,
     objects: DirectoryObjects[],
-    owner: string,
-    parent_id: string | null
+    owner_name: string,
+    owner_id: string,
+    parent_id: string | null,
 }
 
 interface DirectoryObjects {
@@ -37,8 +38,11 @@ const fileSystemReducer = createSlice({
             id: '',
             name: '',
             objects: [],
-            owner: '',
-            parent_id: null
+            parent_id: null,
+            available_space: 0,
+            used_space: 0,
+            owner_id: '',
+            owner_name: '',
         },
         currentDirectoryId: ''
     } as FileSystemStateType,

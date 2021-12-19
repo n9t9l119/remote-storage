@@ -12,8 +12,8 @@ const MainPanel = () => {
         <article className={'glass'}>
             <div className={'main-panel-wrapper'}>
                 <FileSystem/>
-                <div className={'line'}></div>
-                <InfoPart/>
+                {/*<div className={'line'}></div>*/}
+                {/*<InfoPart/>*/}
                 {root && ReactDOM.createPortal(<NameWindow/>, root)}
 
             </div>

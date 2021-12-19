@@ -8,6 +8,7 @@ import FileSystemRename, {FSRenameParams} from "../requests/FileSystemRename";
 import FileSystemDelete, {FSDeleteParams} from "../requests/FileSystemDelete";
 import FileSystemMove, {FSMoveParams} from "../requests/FileSystemMove";
 import FileSystemUploadFile, {FSFileUploadParams} from "../requests/FileSystemUploadFile";
+import {setAvailableSpace, setUsedSpace} from "../redux/reducers/spaceInfoReducer";
 
 export default class FileSystemController {
     private static currentDirectoryId: string | undefined = undefined
@@ -21,6 +22,10 @@ export default class FileSystemController {
             FileSystemController.currentDirectoryId = result.data.id
             store.dispatch(updateDirectory(result.data))
         }
+
+        store.dispatch(setUsedSpace(result.data.used_space))
+        store.dispatch(setAvailableSpace(result.data.available_space))
+
     }
 
     static async createDirectory(params: FSCreateFolderParams) {
@@ -43,12 +48,12 @@ export default class FileSystemController {
             return
         }
         const command = new RequestController(new FileSystemRename(params))
-        const result = await command.execute()
+        await command.execute()
     }
 
     static async deleteElement(params: FSDeleteParams) {
         const command = new RequestController(new FileSystemDelete(params))
-        const result = await command.execute()
+        await command.execute()
     }
 
     static async updateCurrentDirectory() {
@@ -67,6 +72,6 @@ export default class FileSystemController {
 
     static async uploadFile(params: FSFileUploadParams, data: ArrayBuffer) {
         const command = new RequestController(new FileSystemUploadFile(params, data))
-        const result = await command.execute()
+        await command.execute()
     }
 }
