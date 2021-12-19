@@ -1,0 +1,6 @@
+@mixin glass($r,$g,$b,$blur,$o) {
+    background: rgba($r, $g, $b, $o);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    outline: 1px solid rgba($r, $g, $b, 0.15);
+    backdrop-filter: blur($blur+px);
+}

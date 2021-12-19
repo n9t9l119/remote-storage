@@ -1,0 +1,87 @@
+.file-system {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 5px;
+  width: 100%;
+  min-width: 300px;
+  height: 100%;
+}
+.file-system .directory-trace {
+  width: 100%;
+  height: 25px;
+  padding: 2px 20px;
+  user-select: none;
+  box-sizing: border-box;
+}
+.file-system .directory-trace ul {
+  list-style: none;
+  display: flex;
+  width: 100%;
+  height: 21px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.file-system .directory-trace ul li:nth-child(odd) {
+  width: 5%;
+}
+.file-system .directory-trace ul li:nth-child(odd) button {
+  min-width: 50px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  clip-path: polygon(95% 0, 100% 50%, 95% 100%, 0% 100%, 5% 50%, 0% 0%);
+  font-weight: 400;
+}
+.file-system .directory-trace ul li:nth-child(odd) button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+.file-system .directory-trace ul li:last-child {
+  display: none;
+}
+.file-system .directory-view {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.file-system .directory-view > div {
+  margin: 5px 10px;
+  padding: 2px;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+.file-system .directory-view > div.selected {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+.file-system .directory-view > div.selected:hover {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+.file-system .directory-view > div img {
+  height: 85%;
+}
+.file-system .directory-view > div:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+  outline: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+/*# sourceMappingURL=FyleSystem.css.map */
