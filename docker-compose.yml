@@ -10,7 +10,8 @@ services:
       context: ./backend
     environment:
       POSTGRES_HOST: postgres
-    command: python ./backend/manage.py runserver 0.0.0.0:8000
+    command: bash -c "python ./backend/manage.py migrate
+             && python ./backend/manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     volumes:
