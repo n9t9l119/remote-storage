@@ -97,6 +97,11 @@ class SharedFilesystems(models.Model):
                 name='unique_share')
         ]
 
+class FileUsage(models.Model):
+    file = models.ForeignKey(File, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    date = models.DateTimeField(auto_now_add=True)
+
 class ObjectType(Enum):
     FILE = (1, File)
     FOLDER = (2, Folder)

@@ -10,10 +10,12 @@ from rest_framework.response import Response
 
 from base_settings.models import User
 from filesystem.exceptions import JsonValidationError
-from filesystem.models import File, Folder, UserStorageInfo, ObjectType, SharedFilesystems
+from filesystem.models import File, Folder, UserStorageInfo, ObjectType, SharedFilesystems, FileUsage
 
 
 class FilesystemService:
+
+    @transaction.atomic
     def get(self, id: uuid.UUID, user: AbstractBaseUser) -> Response:
         if id is None:
             folder = UserStorageInfo.objects.get(user=user).root
@@ -104,10 +106,16 @@ class FilesystemService:
 
         return self._response(parent)
 
+    @transaction.atomic
     def download_file(self, id: uuid.UUID, user: AbstractBaseUser) -> Response:
         file = self._get_file_by_id(id)
 
         self._assert_have_access(user, file)
+
+        FileUsage.objects.create(
+            file = file,
+            user = user if isinstance(user, User) else None
+        )
 
         headers = {
             'Content-Type': "application/liquid",
