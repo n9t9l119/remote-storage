@@ -84,15 +84,15 @@ class UserStorageInfo(models.Model):
                 name='unique_root')
         ]
 
-class SharedFilesystems(models.Model):
-    shared_root = models.ForeignKey(Folder, on_delete=models.DO_NOTHING)
+class SharedStorages(models.Model):
+    storage = models.ForeignKey(UserStorageInfo, on_delete=models.DO_NOTHING)
     allowed_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=[
-                    'shared_root',
+                    'storage',
                     'allowed_user'],
                 name='unique_share')
         ]
