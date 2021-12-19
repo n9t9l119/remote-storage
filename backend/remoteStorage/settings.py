@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-import os.path
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +24,7 @@ SECRET_KEY = 'django-insecure-(6@+e93r+9&8ffshdl%(xh$81emu)ish&@f6z@2q0ag3rb8cl-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost:3000', 'localhost:8000', 'localhost',
-                 '127.0.0.1:3000', '127.0.0.1:8000', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -61,7 +60,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -94,8 +92,12 @@ WSGI_APPLICATION = 'remoteStorage.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dna',
+        'USER': 'user',
+        'PASSWORD': '123456',
+        'HOST': os.environ.get('POSTGRES_HOST', ''),
+        'PORT': 5432,
     }
 }
 
@@ -155,6 +157,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
-   "http://127.0.0.1:3000",
-   "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
 )
