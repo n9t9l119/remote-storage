@@ -1,9 +1,12 @@
-# syntax=docker/dockerfile:1
-FROM python:3
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-WORKDIR /code
-COPY ./backend/requirements.txt /code/
-RUN pip install -r requirements.txt
-COPY ./backend /code/
+FROM python:3.8-slim
 
+ARG POSTGRES_HOST
+ENV POSTGRES_HOST $POSTGRES_HOST
+RUN apt update
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+
+COPY . .
+
+RUN pip install --no-cache-dir -r requirements.txt && \
+    python manage.py makemigrations
