@@ -98,7 +98,7 @@ class SharedStorages(models.Model):
         ]
 
 class FileUsage(models.Model):
-    file = models.ForeignKey(File, on_delete=models.DO_NOTHING)
+    file = models.ForeignKey(File, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
     date = models.DateTimeField(auto_now_add=True)
 
