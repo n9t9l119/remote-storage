@@ -34,11 +34,11 @@ class FilesystemService:
         fs_info = UserStorageInfo.objects.get(user=self.user)
         parent = self._get_folder_by_id(parent_id)
 
-        self. _assert_have_access(self.user, parent)
+        self._assert_have_access(self.user, parent)
 
         Folder.objects.create(
             name=name,
-            owner=user,
+            owner=self.user,
             parent=parent,
             root=fs_info.root
         )
